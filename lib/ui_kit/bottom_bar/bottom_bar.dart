@@ -20,8 +20,7 @@ class _BottomBarState extends State<BottomBar>
 
   final List<String> icons = [
     IconProvider.home.buildImageUrl(),
-    IconProvider.catalog.buildImageUrl(),
-    IconProvider.diary.buildImageUrl(),
+
   ];
 
   late AnimationController _animationController;

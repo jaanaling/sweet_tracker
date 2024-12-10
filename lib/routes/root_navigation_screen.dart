@@ -26,19 +26,7 @@ class _RootNavigationScreenState extends State<RootNavigationScreen> {
       resizeToAvoidBottomInset: false,
       child: Stack(
         children: [
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(
-                 IconProvider.background.buildImageUrl()
-             
-                  ),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
+         
           widget.navigationShell,
           Positioned(
               bottom: 5 + MediaQuery.of(context).padding.bottom,
