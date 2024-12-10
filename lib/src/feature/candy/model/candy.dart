@@ -77,7 +77,7 @@ class Candy {
       'id': id,
       'name': name,
       'category': category.toMap(),
-      'location': location.toMap(),
+      'location': location.name,
       'quantity': quantity,
       'expirationDate': expirationDate?.millisecondsSinceEpoch,
       'isPermanent': isPermanent,
@@ -96,7 +96,7 @@ class Candy {
       name: map['name'] as String,
       category: SweetCategory.fromMap(map['category'] as Map<String, dynamic>),
       location:
-          StorageLocation.fromMap(map['location'] as Map<String, dynamic>),
+          StorageLocation.values.firstWhere((e) => e.name == map['location']),
       quantity: map['quantity'] as int,
       expirationDate: map['expirationDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['expirationDate'] as int)
@@ -160,5 +160,3 @@ class Candy {
         isTemplate.hashCode;
   }
 }
-
-

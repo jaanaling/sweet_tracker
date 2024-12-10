@@ -170,6 +170,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
         final record = UsageHistoryRecord(
           id: const Uuid().v4(),
           date: DateTime.now(),
+          category: candy.category,
           sweetName: candy.name,
           usedQuantity: countToUse,
         );
