@@ -1,4 +1,4 @@
-import 'package:candy_planner/src/feature/candy/bloc/candy_bloc.dart';
+import 'package:sweet_planner/src/feature/candy/bloc/candy_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

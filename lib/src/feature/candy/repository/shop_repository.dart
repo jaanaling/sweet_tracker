@@ -1,5 +1,5 @@
 
-import 'package:candy_planner/src/feature/candy/model/shopping_item.dart';
+import 'package:sweet_planner/src/feature/candy/model/shopping_item.dart';
 
 import '../../../core/utils/json_loader.dart';
 

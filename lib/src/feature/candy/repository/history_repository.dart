@@ -1,5 +1,5 @@
-import 'package:candy_planner/src/feature/candy/model/candy.dart';
-import 'package:candy_planner/src/feature/candy/model/history.dart';
+import 'package:sweet_planner/src/feature/candy/model/candy.dart';
+import 'package:sweet_planner/src/feature/candy/model/history.dart';
 
 import '../../../core/utils/json_loader.dart';
 

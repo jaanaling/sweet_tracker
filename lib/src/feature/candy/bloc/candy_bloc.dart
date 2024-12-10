@@ -1,10 +1,10 @@
 import 'package:bloc/bloc.dart';
-import 'package:candy_planner/src/feature/candy/model/candy.dart';
-import 'package:candy_planner/src/feature/candy/model/history.dart';
-import 'package:candy_planner/src/feature/candy/model/shopping_item.dart';
-import 'package:candy_planner/src/feature/candy/model/sweet_type.dart';
-import 'package:candy_planner/src/feature/candy/repository/history_repository.dart';
-import 'package:candy_planner/src/feature/candy/repository/shop_repository.dart';
+import 'package:sweet_planner/src/feature/candy/model/candy.dart';
+import 'package:sweet_planner/src/feature/candy/model/history.dart';
+import 'package:sweet_planner/src/feature/candy/model/shopping_item.dart';
+import 'package:sweet_planner/src/feature/candy/model/sweet_type.dart';
+import 'package:sweet_planner/src/feature/candy/repository/history_repository.dart';
+import 'package:sweet_planner/src/feature/candy/repository/shop_repository.dart';
 import 'package:equatable/equatable.dart';
 import 'package:uuid/uuid.dart';
 

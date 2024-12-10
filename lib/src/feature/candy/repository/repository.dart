@@ -1,4 +1,4 @@
-import 'package:candy_planner/src/feature/candy/model/candy.dart';
+import 'package:sweet_planner/src/feature/candy/model/candy.dart';
 
 import '../../../core/utils/json_loader.dart';
 

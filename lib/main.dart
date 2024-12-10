@@ -1,4 +1,4 @@
-import 'package:candy_planner/src/core/dependency_injection.dart';
+import 'package:sweet_planner/src/core/dependency_injection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

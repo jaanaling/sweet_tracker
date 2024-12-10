@@ -1,5 +1,5 @@
 enum IconProvider {
-  splash(imageName: 'splash.png'),
+  splash(imageName: 'splash.webp'),
   accept(imageName: 'accept.png'),
   accept_a(imageName: 'accept_a.png'),
   history(imageName: 'history.png'),
@@ -8,7 +8,7 @@ enum IconProvider {
   home_a(imageName: 'home_a.png'),
   shop(imageName: 'shop.png'),
   shop_a(imageName: 'shop_a.png'),
-  logo(imageName: 'logo.png'),
+  logo(imageName: 'logo.webp'),
   notifications(imageName: 'notifications.png'),
   settings(imageName: 'settings.png'),
   checkBox(imageName: 'check_box.png'),
