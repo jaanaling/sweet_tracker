@@ -18,7 +18,6 @@ class RootNavigationScreen extends StatefulWidget {
 }
 
 class _RootNavigationScreenState extends State<RootNavigationScreen> {
-  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +31,15 @@ class _RootNavigationScreenState extends State<RootNavigationScreen> {
             ),
           ),
           widget.navigationShell,
-          Positioned(
-              bottom: 5 + MediaQuery.of(context).padding.bottom,
-              left: 10,
-              right: 10,
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
               child: BottomBar(
                 onTap: _onTap,
-              ))
+              ),
+            ),
+          )
         ],
       ),
     );
@@ -63,9 +64,5 @@ class _RootNavigationScreenState extends State<RootNavigationScreen> {
       cIndex,
       initialLocation: true,
     );
-
-    setState(() {
-      _currentIndex = index;
-    });
   }
 }
