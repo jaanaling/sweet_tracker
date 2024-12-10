@@ -14,16 +14,18 @@ class CandyLoading extends CandyState {}
 class CandyLoaded extends CandyState {
   final List<Candy> candies;
   final List<ShoppingItem> shoppingList;
+  final List<UsageHistoryRecord> historyList;
   final Map<String, int> pendingPeriodicUsage;
 
   const CandyLoaded({
     required this.candies,
+    required this.historyList,
     required this.shoppingList,
     required this.pendingPeriodicUsage,
   });
 
   @override
-  List<Object> get props => [candies, shoppingList, pendingPeriodicUsage];
+  List<Object> get props => [candies, shoppingList, pendingPeriodicUsage, historyList];
 }
 
 class CandyError extends CandyState {

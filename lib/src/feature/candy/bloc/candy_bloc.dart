@@ -25,6 +25,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
   // Локальное хранилище полного списка для удобной фильтрации
   List<Candy> _allCandies = [];
   List<ShoppingItem> _shoppingList = [];
+  List<UsageHistoryRecord> _historyList = [];
   Map<String, int> _pendingPeriodicUsage = {};
 
   CandyBloc() : super(CandyInitial()) {
@@ -45,7 +46,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     on<CheckoutShoppingList>(_onCheckoutShoppingList);
   }
 
-   Future<void> _onLoadCandy(
+  Future<void> _onLoadCandy(
     LoadCandy event,
     Emitter<CandyState> emit,
   ) async {
@@ -53,12 +54,14 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     try {
       final candies = await _candyRepository.load();
       _allCandies = candies;
-      // Загрузим список покупок
+
       _shoppingList = await _shoppingRepository.load();
+      _historyList = await _historyRepository.load();
       emit(CandyLoaded(
         candies: _allCandies,
         shoppingList: _shoppingList,
         pendingPeriodicUsage: _pendingPeriodicUsage,
+        historyList: _historyList,
       ));
     } catch (e) {
       logger.e(e);
@@ -116,7 +119,9 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     _pendingPeriodicUsage.clear();
 
     for (var candy in _allCandies) {
-      if (candy.isPeriodic && candy.periodicityDays != null && candy.periodicityCount != null) {
+      if (candy.isPeriodic &&
+          candy.periodicityDays != null &&
+          candy.periodicityCount != null) {
         // Проверим, есть ли что списывать
         if (candy.quantity > 0) {
           final countToUse = candy.quantity >= candy.periodicityCount!
@@ -130,6 +135,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     }
 
     emit(CandyLoaded(
+      historyList: _historyList,
       candies: _allCandies,
       shoppingList: _shoppingList,
       pendingPeriodicUsage: _pendingPeriodicUsage,
@@ -177,6 +183,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
         }
 
         emit(CandyLoaded(
+          historyList: _historyList,
           candies: _allCandies,
           shoppingList: _shoppingList,
           pendingPeriodicUsage: _pendingPeriodicUsage,
@@ -191,6 +198,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
   ) {
     _pendingPeriodicUsage.remove(event.candyId);
     emit(CandyLoaded(
+      historyList: _historyList,
       candies: _allCandies,
       shoppingList: _shoppingList,
       pendingPeriodicUsage: _pendingPeriodicUsage,
@@ -219,6 +227,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     }
 
     emit(CandyLoaded(
+      historyList: _historyList,
       candies: _allCandies,
       shoppingList: _shoppingList,
       pendingPeriodicUsage: _pendingPeriodicUsage,
@@ -240,6 +249,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
 
     emit(CandyLoaded(
       candies: _allCandies,
+      historyList: _historyList,
       shoppingList: _shoppingList,
       pendingPeriodicUsage: _pendingPeriodicUsage,
     ));
@@ -260,6 +270,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
 
     emit(CandyLoaded(
       candies: _allCandies,
+      historyList: _historyList,
       shoppingList: _shoppingList,
       pendingPeriodicUsage: _pendingPeriodicUsage,
     ));
@@ -278,6 +289,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
 
     // Пока просто эмитим текущее состояние
     emit(CandyLoaded(
+      historyList: _historyList,
       candies: _allCandies,
       shoppingList: _shoppingList,
       pendingPeriodicUsage: _pendingPeriodicUsage,

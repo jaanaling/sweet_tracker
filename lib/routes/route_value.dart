@@ -5,23 +5,20 @@ enum RouteValue {
   home(
     path: '/home',
   ),
-  catalog(
-    path: '/catalog',
+  confirmation(
+    path: '/confirmation',
   ),
-  diary(
-    path: '/diary',
+  add(
+    path: 'add',
   ),
-  info(
-    path: 'info',
+  notification(
+    path: 'notification',
   ),
-  write(
-    path: 'write',
+  shopping(
+    path: '/shopping',
   ),
-  generator(
-    path: '/generator',
-  ),
-  tamples(
-    path: 'tamples',
+  history(
+    path: '/history',
   ),
 
   unknown(
