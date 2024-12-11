@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sweet_planner/src/feature/candy/model/candy.dart';
 import '../src/feature/candy/presentation/add_screen.dart';
 import '../src/feature/candy/presentation/home_screen.dart';
 import '../src/feature/candy/presentation/history_screen.dart';
@@ -45,7 +46,10 @@ GoRouter buildGoRouter = GoRouter(
                     GoRoute(
                         path: RouteValue.add.path,
                         builder: (BuildContext context, GoRouterState state) {
-                          return const AddSweetScreen();
+                          return AddSweetScreen(
+                            isShop: false,
+                            candy: state.extra as Candy?,
+                          );
                         }),
                     GoRoute(
                         path: RouteValue.notification.path,
@@ -66,7 +70,10 @@ GoRouter buildGoRouter = GoRouter(
                     GoRoute(
                         path: RouteValue.add.path,
                         builder: (BuildContext context, GoRouterState state) {
-                          return const AddSweetScreen();
+                          return AddSweetScreen(
+                            isShop: true,
+                            candy: state.extra as Candy?,
+                          );
                         }),
                   ])
             ]),

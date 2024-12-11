@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:sweet_planner/src/feature/candy/bloc/candy_bloc.dart';
 import 'package:sweet_planner/src/feature/candy/model/candy.dart';
 import 'package:sweet_planner/src/feature/candy/model/storage_location.dart';
@@ -11,7 +14,9 @@ import 'package:sweet_planner/src/feature/candy/model/sweet_type.dart';
 import 'package:uuid/uuid.dart';
 
 class AddSweetScreen extends StatefulWidget {
-  const AddSweetScreen({Key? key}) : super(key: key);
+  final Candy? candy;
+  final bool? isShop;
+  const AddSweetScreen({Key? key, this.candy, this.isShop}) : super(key: key);
 
   @override
   State<AddSweetScreen> createState() => _AddSweetScreenState();
@@ -43,13 +48,35 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
 
   bool recurringCandy = false;
   bool saveTemplate = false;
-  bool autoAddToCart = false;
+  bool addToCart = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.candy != null) {
+      _nameController.text = widget.candy!.name;
+      _usageCategoryController.text = widget.candy!.category.name;
+      quantityController.text = widget.candy!.quantity.toString();
+      selectedExpirationDate = widget.candy!.expirationDate ?? DateTime.now();
+      selectedLocation = widget.candy!.location.name;
+      selectedCategory = widget.candy!.type.name;
+      recurringCandy = widget.candy!.isPermanent;
+      saveTemplate = widget.candy!.isTemplate;
+      selectedDates = widget.candy!.periodicityDays ?? [];
+      selectedPeriodicityCount.text = widget.candy!.periodicityCount.toString();
+      selectedImage = widget.candy!.imageUrl;
+    }
+    if (widget.isShop != null) {
+      addToCart = widget.isShop!;
+    }
+  }
 
   // Поле для ввода текста
-  Widget _buildTextField(
-      {required String label,
-      required List<String> hints,
-      required TextEditingController controller}) {
+  Widget _buildTextField({
+    required String label,
+    required List<String> hints,
+    required TextEditingController controller,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -71,10 +98,12 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
               controller.text = selection;
             },
             fieldViewBuilder:
-                (context, _, focusNode, onEditingComplete) {
+                (context, controlller, focusNode, onEditingComplete) {
               return TextField(
-                onChanged: (value) => setState(() {}),
-                controller: controller,
+                onChanged: (value) => setState(() {
+                  controller.text = value;
+                }),
+                controller: controlller,
                 focusNode: focusNode,
                 decoration: InputDecoration(
                   hintText: 'Введите название конфеты',
@@ -115,18 +144,15 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
   }
 
   // Переключатели (свитчи)
-  Widget _buildSwitch({required String label, required bool initial}) {
+  Widget _buildSwitch(
+      {required String label,
+      required bool initial,
+      required Function(bool) onChanged}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label),
-        Switch(
-            value: initial,
-            onChanged: (val) {
-              setState(() {
-                initial = val;
-              });
-            }),
+        Switch(value: initial, onChanged: onChanged),
       ],
     );
   }
@@ -141,7 +167,7 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
             height:
                 200, // Set height to allow for the date picker to be visible
             child: CupertinoDatePicker(
-              initialDateTime: selectedExpirationDate ?? DateTime.now(),
+              initialDateTime: selectedExpirationDate,
               minimumDate: DateTime(2000),
               maximumDate: DateTime(2101),
               onDateTimeChanged: (DateTime newDate) {
@@ -161,6 +187,20 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
         );
       },
     );
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+
+    // Pick an image from the gallery
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        selectedImage = pickedFile.path; // Store the picked image
+      });
+    }
   }
 
   @override
@@ -200,11 +240,22 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
               child: Column(
                 children: [
                   // Кнопка загрузки изображения (плейсхолдер)
-                  Container(
-                    width: 80,
-                    height: 80,
-                    color: Colors.grey.shade300,
-                    child: const Icon(Icons.camera_alt),
+                  GestureDetector(
+                    onTap:
+                        _pickImage, // Open gallery when the container is tapped
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      color: Colors.grey.shade300,
+                      child: selectedImage == null
+                          ? const Icon(Icons
+                              .camera_alt) // Show icon if no image is selected
+                          : Image.file(
+                              File(selectedImage!), // Show the selected image
+                              fit: BoxFit
+                                  .cover, // Ensure the image fits well inside the container
+                            ),
+                    ),
                   ),
                   const SizedBox(height: 16),
 
@@ -254,10 +305,29 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                   const SizedBox(height: 16),
 
                   _buildSwitch(
-                      label: 'Recurring candy', initial: recurringCandy),
-                  _buildSwitch(label: 'Save template', initial: saveTemplate),
+                      label: 'Recurring candy',
+                      initial: recurringCandy,
+                      onChanged: (val) {
+                        setState(() {
+                          recurringCandy = val;
+                        });
+                      }),
                   _buildSwitch(
-                      label: 'Auto-add to cart', initial: autoAddToCart),
+                      label: 'Save template',
+                      initial: saveTemplate,
+                      onChanged: (val) {
+                        setState(() {
+                          saveTemplate = val;
+                        });
+                      }),
+                  _buildSwitch(
+                      label: 'Auto-add to cart',
+                      initial: addToCart,
+                      onChanged: (val) {
+                        setState(() {
+                          addToCart = val;
+                        });
+                      }),
 
                   const SizedBox(height: 16),
                   // Выбор дат (просто кнопка)
@@ -295,8 +365,9 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                               id: Uuid().v4(),
                               name: _usageCategoryController.text),
                         ),
-                        location: StorageLocation.values
-                            .firstWhere((e) => e.name == selectedLocation, orElse: () => StorageLocation.values.first),
+                        location: StorageLocation.values.firstWhere(
+                            (e) => e.name == selectedLocation,
+                            orElse: () => StorageLocation.values.first),
                         quantity: quantityController.text.isNotEmpty
                             ? int.parse(quantityController.text)
                             : 0,
@@ -309,12 +380,24 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                             : selectedDates.map((e) => e).toList(),
                         periodicityCount:
                             int.tryParse(selectedPeriodicityCount.text) ?? 0,
-                        type: SweetType.values
-                            .firstWhere((e) => e.name == selectedCategory, orElse: () => SweetType.values.first),
+                        type: SweetType.values.firstWhere(
+                            (e) => e.name == selectedCategory,
+                            orElse: () => SweetType.values.first),
                         imageUrl: selectedImage,
                         isTemplate: saveTemplate,
                       );
-                      context.read<CandyBloc>().add(SaveCandy(candy));
+                      if (widget.candy != null) {
+                        candy.copyWith(id: widget.candy!.id);
+                      }
+                      if (addToCart) {
+                        context.read<CandyBloc>().add(
+                            AddToShoppingList(id: Uuid().v4(), candy: candy));
+                      } else if (widget.candy != null) {
+                        context.read<CandyBloc>().add(UpdateCandy(candy));
+                      } else {
+                        context.read<CandyBloc>().add(SaveCandy(candy));
+                      }
+
                       context.pop();
                     },
                     child: const Text('Save'),

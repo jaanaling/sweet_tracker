@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sweet_planner/src/feature/candy/bloc/candy_bloc.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({Key? key}) : super(key: key);
@@ -50,22 +52,35 @@ class HistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Экран истории использования
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('History'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            // Navigator.pop(context);
-          },
-        ),
-      ),
-      body: ListView.builder(
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          return _buildHistoryItem(context);
-        },
-      ),
+    return BlocBuilder<CandyBloc, CandyState>(
+      builder: (context, state) {
+        if (state is CandyError) {
+          return const Center(child: Text('Error'));
+        }
+        if (state is CandyLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (state is CandyLoaded) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('History'),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  // Navigator.pop(context);
+                },
+              ),
+            ),
+            body: ListView.builder(
+              itemCount: state.historyList.length,
+              itemBuilder: (context, index) {
+                return _buildHistoryItem(context);
+              },
+            ),
+          );
+        }
+        return const Center(child: Text('Success'));
+      },
     );
   }
 }

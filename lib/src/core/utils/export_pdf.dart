@@ -4,7 +4,7 @@ import 'package:pdf/widgets.dart' as pw;
 // Общий метод экспорта
 Future<Uint8List> exportToPDF({
   required String title,
-  required dynamic data,}) async {
+}) async {
   final pdf = pw.Document();
 
   pdf.addPage(

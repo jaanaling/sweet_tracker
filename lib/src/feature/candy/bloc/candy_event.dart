@@ -80,3 +80,20 @@ class RemoveFromShoppingList extends CandyEvent {
 class ClearShoppingList extends CandyEvent {}
 
 class CheckoutShoppingList extends CandyEvent {}
+
+class DeleteNotification extends CandyEvent {
+  final SweetNotification notification;
+  const DeleteNotification(this.notification);
+
+  @override
+  List<Object> get props => [notification];
+}
+
+class BuyFromShoppingList extends CandyEvent {
+  final ShoppingItem item;
+  const BuyFromShoppingList(this.item);
+
+  @override
+  List<Object> get props => [item];
+}
+
