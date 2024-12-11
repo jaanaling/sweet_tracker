@@ -4,10 +4,15 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sweet_planner/routes/go_router_config.dart';
 import 'package:sweet_planner/routes/route_value.dart';
+import 'package:sweet_planner/src/core/utils/app_icon.dart';
+import 'package:sweet_planner/src/core/utils/icon_provider.dart';
+import 'package:sweet_planner/src/core/utils/size_utils.dart';
 import 'package:sweet_planner/src/feature/candy/bloc/candy_bloc.dart';
 import 'package:sweet_planner/src/feature/candy/model/candy.dart';
 import 'package:sweet_planner/src/feature/candy/model/storage_location.dart';
 import 'package:sweet_planner/src/feature/candy/model/sweet_category.dart';
+import 'package:sweet_planner/ui_kit/app_button/app_button.dart';
+import 'package:sweet_planner/ui_kit/text_field.dart';
 
 enum HomeDisplayMode {
   fullDetails,
@@ -31,32 +36,273 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Построение контента для списка конфет
   Widget _buildContent(List<Candy> candies) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16.0),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4, // Например, 4 столбца
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-      ),
-      itemCount: candies.length,
-      itemBuilder: (context, index) {
-        final candy = candies[index];
-        return Container(
-          color: Colors.grey.shade300,
-          child: _showFullDetails
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(candy.name),
-                    Text('Some details'),
-                    Text('More info'),
-                  ],
-                )
-              : const SizedBox.shrink(),
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Wrap(
+          spacing: 15,
+          runSpacing: 15,
+          children: candies.map((candy) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 9, right: 6),
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 9, right: 6),
+                    child: AppButton(
+                      color: ButtonColors.darkPurple,
+                      radius: 11,
+                      widget: Padding(
+                        padding:
+                            const EdgeInsets.only(left: 4, right: 4, bottom: 4),
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(11),
+                            gradient: LinearGradient(
+                              begin: Alignment(0.00, -1.00),
+                              end: Alignment(0, 1),
+                              colors: [Colors.white, Color(0xFFCDDAE8)],
+                            ),
+                          ),
+                          child: _showFullDetails
+                              ? SizedBox(
+                                  width: 155,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 17),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Align(
+                                          alignment: Alignment.topLeft,
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.only(
+                                              topRight: Radius.circular(50.50),
+                                              bottomRight:
+                                                  Radius.circular(50.50),
+                                            ),
+                                            child: AppIcon(
+                                              width: 128,
+                                              height: 72,
+                                              fit: BoxFit.cover,
+                                              asset: candy.imageUrl ??
+                                                  IconProvider.buildImageByName(
+                                                    candy.type.name,
+                                                  ),
+                                            ),
+                                          ),
+                                        ),
+                                        Gap(5),
+                                        SizedBox(
+                                          width: 139,
+                                          child: Center(
+                                            child: Text(
+                                              candy.name,
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 18,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w500,
+                                                height: 0,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        Gap(5),
+                                        SizedBox(
+                                          width: 139,
+                                          child: Center(
+                                            child: Text(
+                                              'location: ${candy.location.name}',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w300,
+                                                height: 0,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        Gap(5),
+                                        SizedBox(
+                                          width: 139,
+                                          child: Center(
+                                            child: Text(
+                                              candy.category.name,
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w300,
+                                                height: 0,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        Gap(5),
+                                        SizedBox(
+                                          width: 139,
+                                          child: Center(
+                                            child: Text(
+                                              candy.expirationDate != null
+                                                  ? formatDate(
+                                                      candy.expirationDate!)
+                                                  : 'No expiration',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w300,
+                                                height: 0,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        Gap(5),
+                                        SizedBox(
+                                          width: 139,
+                                          child: Center(
+                                            child: Text(
+                                              candy.type.name,
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w300,
+                                                height: 0,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        Gap(5),
+                                        SizedBox(
+                                          width: 139,
+                                          child: Center(
+                                            child: Text(
+                                              'count: ${candy.quantity}',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w300,
+                                                height: 0,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        Gap(7),
+                                        Row(
+                                          children: [
+                                            Spacer(),
+                                            AppButton(
+                                                color: ButtonColors.pink,
+                                                widget: Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 17,
+                                                      vertical: 2),
+                                                  child: Text(
+                                                    'consume',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 11,
+                                                      fontFamily: 'Poppins',
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      height: 0,
+                                                    ),
+                                                  ),
+                                                )),
+                                            Spacer(),
+                                            IconButton(
+                                              padding: EdgeInsets.zero,
+                                              onPressed: () {},
+                                              icon: AppIcon(
+                                                asset: IconProvider.delete
+                                                    .buildImageUrl(),
+                                                width: 20,
+                                                fit: BoxFit.fitWidth,
+                                                height: 24,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: AppIcon(
+                                      width: 86,
+                                      height: 86,
+                                      fit: BoxFit.cover,
+                                      asset: candy.imageUrl ??
+                                          IconProvider.buildImageByName(
+                                            candy.type.name,
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (candy.expirationDate != null &&
+                      DateTime.now().isAfter(candy.expirationDate!))
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        width: 67,
+                        height: 22,
+                        decoration: ShapeDecoration(
+                          color: Color(0xFFBB0000),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(11),
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'expired',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w400,
+                              height: 0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (_showFullDetails)
+                    Positioned(
+                      top: 15,
+                      left: 5,
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {},
+                        icon: AppIcon(
+                          asset: IconProvider.edit.buildImageUrl(),
+                          width: 21,
+                          fit: BoxFit.fitWidth,
+                          height: 21,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          }).toList()),
     );
   }
 
@@ -151,160 +397,249 @@ class _HomeScreenState extends State<HomeScreen> {
           print('Filtered grouped candies: $filtredGropedCandys');
           print('Storage filter: $storageFilter');
 
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Home page'),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.notifications),
-                  onPressed: () {
-                    context.push(
-                      "${RouteValue.home.path}/${RouteValue.notification.path}",
-                    );
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.settings),
-                  onPressed: _showSettingsPopup,
-                ),
-              ],
-            ),
-            body: Column(
-              children: [
-                // Поле поиска
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (value) {
-                      setState(
-                          () {}); // Обновляем состояние при изменении текста поиска
-                    },
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search),
-                      border: const OutlineInputBorder(),
-                      hintText: 'Search...',
-                    ),
-                  ),
-                ),
-                // Отображение списка конфет в зависимости от настроек группировки
-                if (_groupByCategory && _groupByLocation)
-                  Expanded(
-                    child: ListView.separated(
-                      separatorBuilder: (context, index) => const Divider(),
-                      itemCount: filtredGropedCandys.length,
-                      itemBuilder: (context, index) {
-                        final category =
-                            filtredGropedCandys.keys.elementAt(index);
-                        final storageMap =
-                            filtredGropedCandys.values.elementAt(index);
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 199, top: 16),
+                child: SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: Text(
+                          'Home page',
+                          style: TextStyle(
+                            color: Color(0xFF540073),
+                            fontSize: 25,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w300,
+                            height: 0,
+                          ),
+                        ),
+                      ),
+                      Gap(5),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Row(
+                          children: [
+                            SearchTextField(
+                              controller: _searchController,
+                              onChanged: () {
+                                setState(() {});
+                              },
+                            ),
+                            Spacer(),
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: _showSettingsPopup,
+                              icon: AppIcon(
+                                asset: IconProvider.settings.buildImageUrl(),
+                                width: 39,
+                                fit: BoxFit.fitWidth,
+                                height: 42,
+                              ),
+                            ),
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () {
+                                context.push(
+                                  "${RouteValue.home.path}/${RouteValue.notification.path}",
+                                );
+                              },
+                              icon: AppIcon(
+                                asset:
+                                    IconProvider.notifications.buildImageUrl(),
+                                fit: BoxFit.fitWidth,
+                                width: 32,
+                                height: 39,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (_groupByCategory && _groupByLocation)
+                        ListView.separated(
+                          separatorBuilder: (context, index) => Gap(16),
+                          itemCount: filtredGropedCandys.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            final category =
+                                filtredGropedCandys.keys.elementAt(index);
+                            final storageMap =
+                                filtredGropedCandys.values.elementAt(index);
 
-                        return Column(
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Заголовок категории
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 21, right: 21),
+                                  child: Text(
+                                    category.name.toUpperCase(),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 22,
+                                      fontFamily: 'Cygre Black',
+                                      fontWeight: FontWeight.w900,
+                                      height: 0,
+                                      shadows: [
+                                        Shadow(
+                                          offset: Offset(2, 2),
+                                          blurRadius: 4,
+                                          color: Colors.grey,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const Gap(4),
+                                // Виджеты для выбора места хранения
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 16, right: 16),
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      children: [
+                                        ...storageMap.keys
+                                            .map(
+                                              (storageLocation) =>
+                                                  storageWidget(
+                                                storageLocation.name,
+                                                category,
+                                                storageLocation.name,
+                                              ),
+                                            )
+                                            .toList(),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                AppDivider(),
+                                // Отображение конфет
+                                _buildContent(
+                                  storageMap.values.expand((x) => x).toList(),
+                                ),
+                              ],
+                            );
+                          },
+                        )
+                      else if (_groupByCategory)
+                        ListView.separated(
+                          separatorBuilder: (context, index) => const Gap(16),
+                          itemCount: filtredGropedCandys.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            final category =
+                                filtredGropedCandys.keys.elementAt(index);
+                            final storageMap =
+                                filtredGropedCandys.values.elementAt(index);
+
+                            // Получаем все конфеты для данной категории
+                            final candies =
+                                storageMap.values.expand((x) => x).toList();
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Заголовок категории
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 21, right: 21),
+                                  child: Text(
+                                    category.name.toUpperCase(),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 22,
+                                      fontFamily: 'Cygre Black',
+                                      fontWeight: FontWeight.w900,
+                                      height: 0,
+                                      shadows: [
+                                        Shadow(
+                                          offset: Offset(2, 2),
+                                          blurRadius: 4,
+                                          color: Colors.grey,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const Gap(4),
+                                // Отображение конфет
+                                _buildContent(candies),
+                              ],
+                            );
+                          },
+                        )
+                      else if (_groupByLocation)
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // Заголовок категории
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                category.name.toUpperCase(),
-                              ),
-                            ),
-                            const Gap(16),
+
                             // Виджеты для выбора места хранения
                             SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Row(
                                 children: [
-                                  ...storageMap.keys
-                                      .map((storageLocation) => storageWidget(
-                                          storageLocation.name,
-                                          category,
-                                          storageLocation.name))
+                                  ...groupedCandys.values
+                                      .expand((x) => x)
+                                      .toList()
+                                      .map(
+                                        (storageLocation) => storageWidget(
+                                          storageLocation.location.name,
+                                          storageLocation.category,
+                                          storageLocation.location.name,
+                                        ),
+                                      )
                                       .toList(),
                                 ],
                               ),
                             ),
+                            AppDivider(),
                             // Отображение конфет
                             _buildContent(
-                                storageMap.values.expand((x) => x).toList()),
-                          ],
-                        );
-                      },
-                    ),
-                  )
-                else if (_groupByCategory)
-                  Expanded(
-                    child: ListView.separated(
-                      separatorBuilder: (context, index) => const Divider(),
-                      itemCount: filtredGropedCandys.length,
-                      itemBuilder: (context, index) {
-                        final category =
-                            filtredGropedCandys.keys.elementAt(index);
-                        final storageMap =
-                            filtredGropedCandys.values.elementAt(index);
-
-                        // Получаем все конфеты для данной категории
-                        final candies =
-                            storageMap.values.expand((x) => x).toList();
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Заголовок категории
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                category.name.toUpperCase(),
-                              ),
+                              groupedCandys.values.expand((x) => x).toList(),
                             ),
-                            const Gap(16),
-                            // Отображение конфет
-                            _buildContent(candies),
                           ],
-                        );
-                      },
-                    ),
-                  )
-                else if (_groupByLocation)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Заголовок категории
-
-                      // Виджеты для выбора места хранения
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            ...groupedCandys.values
-                                .expand((x) => x)
-                                .toList()
-                                .map((storageLocation) => storageWidget(
-                                    storageLocation.location.name,
-                                    storageLocation.category,
-                                    storageLocation.location.name))
-                                .toList(),
-                          ],
+                        )
+                      else
+                        // Если нет группировки, отображаем все конфеты
+                        Expanded(
+                          child: _buildContent(filteredCandys),
                         ),
-                      ),
-                      // Отображение конфет
-                      _buildContent(
-                          groupedCandys.values.expand((x) => x).toList()),
                     ],
-                  )
-                else
-                  // Если нет группировки, отображаем все конфеты
-                  Expanded(
-                    child: _buildContent(filteredCandys),
                   ),
-              ],
-            ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                context.push("${RouteValue.home.path}/${RouteValue.add.path}");
-              },
-              child: const Icon(Icons.add),
-            ),
+                ),
+              ),
+              Positioned(
+                bottom: 128,
+                right: 23,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: AppButton(
+                      radius: 10,
+                      color: ButtonColors.pink,
+                      onPressed: () {
+                        context.push(
+                            "${RouteValue.home.path}/${RouteValue.add.path}");
+                      },
+                      widget: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 10),
+                        child: AppIcon(
+                          asset: IconProvider.add.buildImageUrl(),
+                          width: 29,
+                          height: 29,
+                        ),
+                      )),
+                ),
+              )
+            ],
           );
         }
         // Если состояние не загружено, показываем индикатор загрузки
@@ -316,13 +651,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Виджет для выбора места хранения
-  TextButton storageWidget(String storage, SweetCategory? category, String id) {
-    return TextButton(
+  AppButton storageWidget(String storage, SweetCategory category, String id) {
+    final bool isSelected = storageFilter.containsValue(storage);
+    return AppButton(
+      color: isSelected ? ButtonColors.purple : ButtonColors.grey,
       onPressed: () {
         setState(() {
           if (storageFilter[category] == null) {
             storageFilter[category ?? SweetCategory(id: id, name: storage)] = [
-              id
+              id,
             ];
           } else if (storageFilter[category]!.contains(id)) {
             storageFilter[category]!.remove(id);
@@ -331,7 +668,51 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         });
       },
-      child: Text(storage),
+      widget: Padding(
+        padding: const EdgeInsets.only(left: 24, right: 24, bottom: 6, top: 6),
+        child: Text(
+          storage,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Color(0xFF790AA3),
+            fontSize: 16,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w400,
+            height: 0,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+String formatDate(DateTime date) {
+  String month = date.month.toString().padLeft(2, '0');
+  String day = date.day.toString().padLeft(2, '0');
+  String year = date.year.toString();
+  return '$month.$day.$year';
+}
+
+class AppDivider extends StatelessWidget {
+  const AppDivider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Container(
+        width: getWidth(1, context) - 16,
+        height: 2,
+        decoration: ShapeDecoration(
+          gradient: LinearGradient(
+            begin: Alignment(1.00, 0.00),
+            end: Alignment(-1, 0),
+            colors: [Color(0x00881CB8), Color(0xFF881CB8), Color(0x00881CB8)],
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+        ),
+      ),
     );
   }
 }

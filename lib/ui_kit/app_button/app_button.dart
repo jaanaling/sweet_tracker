@@ -16,7 +16,7 @@ class AppButton extends StatelessWidget {
     this.onPressed,
     this.radius = 32,
     this.width,
-    this.isRound = false
+    this.isRound = false,
   });
 
   @override
@@ -25,46 +25,38 @@ class AppButton extends StatelessWidget {
 
     return Material(
       color: Colors.transparent,
+      borderRadius: BorderRadius.circular(radius),
+      elevation: 5,
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(radius),
         splashColor: styleConfig.splashColor,
-        child: Padding(
-          padding: const EdgeInsets.all(2),
-          child: Ink(
-            width: width,
-            decoration: ShapeDecoration(
-              gradient: styleConfig.outerGradient,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  width: 2,
-                  strokeAlign: BorderSide.strokeAlignOutside,
-                  color: styleConfig.borderColor,
-                ),
-                borderRadius: BorderRadius.circular(radius),
+        child: Ink(
+          width: width,
+          decoration: ShapeDecoration(
+            gradient: styleConfig.outerGradient,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                width: 2,
+                strokeAlign: BorderSide.strokeAlignOutside,
+                color: styleConfig.borderColor,
               ),
-              shadows: const [
-                BoxShadow(
-                  color: Color(0x3F000000),
-                  blurRadius: 4,
-                  offset: Offset(0, 4),
-                ),
-              ],
+              borderRadius: BorderRadius.circular(radius),
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Ink(
-                width: width,
-                decoration: ShapeDecoration(
-                  gradient: styleConfig.innerGradient,
-                  shape: isRound
-                      ? const OvalBorder()
-                      : RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(radius),
-                  ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Ink(
+              width: width,
+              decoration: ShapeDecoration(
+                gradient: styleConfig.innerGradient,
+                shape: isRound
+                    ? const OvalBorder()
+                    : RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(radius),
                 ),
-                child: widget,
               ),
+              child: widget,
             ),
           ),
         ),
@@ -81,144 +73,72 @@ class AppButton extends StatelessWidget {
           outerGradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFF59FF8),
-              Color(0xFFAA3386)],
+            colors: [Color(0xFFf65ccc), Color(0xFFC233C0)],
           ),
           innerGradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFF371CC),
-              Color(0xFFFF41A9)],
-          ),
-        );
-      case ButtonColors.yellow:
-        return const ButtonStyleConfig(
-          splashColor: Color(0xFFF6BD6D),
-          borderColor: Colors.transparent,
-          outerGradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFF6BD6D), Color(0xFF985C06)],
-          ),
-          innerGradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFFF9E17), Color(0xFFCD7C00)],
-          ),
-        );
-      case ButtonColors.grey:
-        return const ButtonStyleConfig(
-          splashColor: Color(0xFFA8A8A8),
-          borderColor: Colors.transparent,
-          outerGradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFA8A8A8), Color(0xFF535353)],
-          ),
-          innerGradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF7D7D7D), Color(0xFF676767)],
-          ),
-        );
-      case ButtonColors.red:
-        return const ButtonStyleConfig(
-          splashColor: Color(0xFFfb6d6d),
-          borderColor: Colors.transparent,
-          outerGradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFfb6d6d), Color(0xFFa20707)],
-          ),
-          innerGradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFFF3217), Color(0xFFC40808)],
+            colors: [Color(0xFFF445C2), Color(0xFFC233C0)],
           ),
         );
       case ButtonColors.purple:
         return const ButtonStyleConfig(
-          splashColor: Color(0xFFAD3FED),
-          borderColor: Color(0xFFF549FF),
-          outerGradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFAD3FED),
-              Color(0xFF3C0E51)],
-          ),
-          innerGradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF611883),
-              Color(0xFF4F027A)],
-          ),
-        );
-      case ButtonColors.orange:
-        return const ButtonStyleConfig(
-          splashColor: Color(0xFFF3A487),
+          splashColor: Color(0xFFc145f3),
           borderColor: Colors.transparent,
           outerGradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFF3A487),
-              Color(0xFF5C2816)],
+            colors: [Color(0xFFc145f3), Color(0xFF710096)],
           ),
           innerGradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFE17A54),
-              Color(0xFFE66738)],
+            colors: [Color(0xFF8C21BE), Color(0xFF710096)],
           ),
         );
       case ButtonColors.white:
         return const ButtonStyleConfig(
-          splashColor: Color(0xFFCACACA),
+          splashColor: Color(0xFF9CB5DB),
           borderColor: Colors.transparent,
           outerGradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFCACACA),
-              Color(0xFF515151)],
+            colors: [Colors.white, Color(0xFF9CB5DB)],
           ),
           innerGradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFFFFFFF),
-              Color(0xFFC6C6C6)],
+            colors: [Colors.white, Color(0xFFCDDAE8)],
           ),
         );
-      case ButtonColors.darkOrange:
+      case ButtonColors.grey:
         return const ButtonStyleConfig(
-          splashColor: Color(0xFFE3805A),
+          splashColor: Color(0xFFBB7FC9),
           borderColor: Colors.transparent,
           outerGradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFE3805A),
-              Color(0xFF531903)],
+            colors: [Color(0xFFFFFFFF), Color(0xFFBB7FC9)],
           ),
           innerGradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFA03914),
-              Color(0xFF9E2E03)],
+            colors: [Color(0xFFEEEEEE), Color(0xFFD5B3E1)],
           ),
         );
-      case ButtonColors.green:
+      case ButtonColors.darkPurple:
         return const ButtonStyleConfig(
-          splashColor: Color(0xFF8DF694),
+          splashColor: Color(0xFFBB7FC9),
           borderColor: Colors.transparent,
           outerGradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF8DF694),
-              Color(0xFF006505)],
+            colors: [Color(0xFFE13DC1), Color(0xFF41005F)],
           ),
           innerGradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF30D53B),
-              Color(0xFF008310)],
+            colors: [Color(0xFFE13DC1), Color(0xFF8C21BE)],
           ),
         );
       default:
@@ -255,4 +175,4 @@ class ButtonStyleConfig {
   });
 }
 
-enum ButtonColors { pink, yellow, grey, purple, red, white, darkOrange, orange, green }
+enum ButtonColors { pink, purple, white, grey, darkPurple}

@@ -17,6 +17,8 @@ enum IconProvider {
   share(imageName: 'share.png'),
   frame(imageName: 'frame.png'),
   add(imageName: 'add.png'),
+  delete(imageName: 'delete.png'),
+  edit(imageName: 'edit.png'),
 
   unknown(imageName: '');
 

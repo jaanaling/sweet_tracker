@@ -1,10 +1,11 @@
-
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:inner_glow/inner_glow.dart';
+import 'package:sweet_planner/src/core/utils/app_icon.dart';
+import 'package:sweet_planner/src/core/utils/icon_provider.dart';
+import 'package:sweet_planner/src/core/utils/size_utils.dart';
 
 class AppTextField extends StatelessWidget {
   final double width;
@@ -164,6 +165,52 @@ class AppTextField extends StatelessWidget {
               ),
             )))
       ],
+    );
+  }
+}
+
+class SearchTextField extends StatelessWidget {
+  final TextEditingController controller;
+ final VoidCallback onChanged;
+  const SearchTextField({super.key, required this.controller, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: getWidth(1, context) - 132,
+      height: 48,
+      decoration: ShapeDecoration(
+        gradient: LinearGradient(
+          begin: Alignment(0.00, -1.00),
+          end: Alignment(0, 1),
+          colors: [Color(0xFFEEEEEE), Color(0xFFD5B3E1)],
+        ),
+        shape: RoundedRectangleBorder(
+          side: BorderSide(width: 0.50, color: Colors.white),
+          borderRadius: BorderRadius.circular(9),
+        ),
+      ),
+      child: CupertinoTextField(
+        prefix: Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: Icon(
+            CupertinoIcons.search,
+            color: Color(0x8E350047),
+          ),
+        ),
+        onChanged: (value){
+          onChanged();
+        },
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment(0.00, -1.00),
+            end: Alignment(0, 1),
+            colors: [Color(0xFFEEEEEE), Color(0xFFD5B3E1)],
+          ),
+          border: Border.all(width: 0.50, color: Colors.white),
+          borderRadius: BorderRadius.circular(9),
+        ),
+      ),
     );
   }
 }
