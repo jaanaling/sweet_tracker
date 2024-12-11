@@ -1,6 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:sweet_planner/src/feature/candy/model/storage_location.dart';
 import 'package:sweet_planner/src/feature/candy/model/sweet_category.dart';
 import 'package:sweet_planner/src/feature/candy/model/sweet_type.dart';
@@ -12,12 +14,11 @@ class Candy {
   final StorageLocation location;
   final int quantity;
   final DateTime? expirationDate;
-
   final bool isPermanent;
   final bool isPeriodic;
   final List<int>? periodicityDays;
   final int? periodicityCount;
-   int? currentPeriodicIndex;
+  int? currentPeriodicIndex;
   final SweetType type;
   final String? imageUrl;
   bool get isExpired =>
@@ -142,13 +143,12 @@ class Candy {
         other.category == category &&
         other.location == location &&
         other.quantity == quantity &&
-        other.currentPeriodicIndex == currentPeriodicIndex &&
-
         other.expirationDate == expirationDate &&
         other.isPermanent == isPermanent &&
         other.isPeriodic == isPeriodic &&
-        other.periodicityDays == periodicityDays &&
+        listEquals(other.periodicityDays, periodicityDays) &&
         other.periodicityCount == periodicityCount &&
+        other.currentPeriodicIndex == currentPeriodicIndex &&
         other.type == type &&
         other.imageUrl == imageUrl &&
         other.isTemplate == isTemplate;
@@ -159,7 +159,6 @@ class Candy {
     return id.hashCode ^
         name.hashCode ^
         category.hashCode ^
-        currentPeriodicIndex.hashCode ^
         location.hashCode ^
         quantity.hashCode ^
         expirationDate.hashCode ^
@@ -167,6 +166,7 @@ class Candy {
         isPeriodic.hashCode ^
         periodicityDays.hashCode ^
         periodicityCount.hashCode ^
+        currentPeriodicIndex.hashCode ^
         type.hashCode ^
         imageUrl.hashCode ^
         isTemplate.hashCode;

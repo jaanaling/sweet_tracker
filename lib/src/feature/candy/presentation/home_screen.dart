@@ -13,6 +13,7 @@ import 'package:sweet_planner/src/feature/candy/model/storage_location.dart';
 import 'package:sweet_planner/src/feature/candy/model/sweet_category.dart';
 import 'package:sweet_planner/ui_kit/app_button/app_button.dart';
 import 'package:sweet_planner/ui_kit/text_field.dart';
+import 'package:uuid/uuid.dart';
 
 enum HomeDisplayMode {
   fullDetails,
@@ -33,11 +34,10 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showFullDetails = false;
   final TextEditingController _searchController = TextEditingController();
 
-  /// Хранилище выбора фильтров по местам хранения для группировки по категориям:
-  /// ключ - id категории, значение - список id мест хранения
+  /// Если включена группировка по категориям, используем фильтр storageFilter[categoryId] = [locationId...]
   final Map<String, List<String>> storageFilter = {};
 
-  /// Глобальный фильтр по местам хранения, если категории отключены
+  /// Если отключена группировка по категориям, но включена по местам, используем глобальный фильтр по локациям
   final List<String> globalLocationFilter = [];
 
   Widget _buildContent(List<Candy> candies) {
@@ -57,7 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: ButtonColors.darkPurple,
                     radius: 11,
                     widget: Padding(
-                      padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
+                      padding:
+                          const EdgeInsets.only(left: 4, right: 4, bottom: 4),
                       child: Ink(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(11),
@@ -150,7 +151,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         child: Center(
                                           child: Text(
                                             candy.expirationDate != null
-                                                ? formatDate(candy.expirationDate!)
+                                                ? formatDate(
+                                                    candy.expirationDate!)
                                                 : 'No expiration',
                                             style: const TextStyle(
                                               color: Colors.black,
@@ -202,6 +204,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                         children: [
                                           const Spacer(),
                                           AppButton(
+                                            onPressed: () =>
+                                                showConsumeCandyDialog(
+                                                    candy: candy,
+                                                    context: context),
                                             color: ButtonColors.pink,
                                             widget: const Padding(
                                               padding: EdgeInsets.symmetric(
@@ -223,9 +229,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                           const Spacer(),
                                           IconButton(
                                             padding: EdgeInsets.zero,
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              context
+                                                  .read<CandyBloc>()
+                                                  .add(RemoveCandy(candy));
+                                            },
                                             icon: AppIcon(
-                                              asset: IconProvider.delete.buildImageUrl(),
+                                              asset: IconProvider.delete
+                                                  .buildImageUrl(),
                                               width: 20,
                                               fit: BoxFit.fitWidth,
                                               height: 24,
@@ -290,7 +301,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     left: 5,
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      onPressed: () {},
+                      onPressed: () {context.push("${RouteValue.home.path}/${RouteValue.add.path}", extra: candy);},
                       icon: AppIcon(
                         asset: IconProvider.edit.buildImageUrl(),
                         width: 21,
@@ -351,59 +362,90 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, state) {
         if (state is CandyLoaded) {
           final query = _searchController.text.toLowerCase();
-          // Фильтрация
-          final filteredCandies = state.candies.where((candy) {
+
+          // Сначала получим полный список категорий из всех конфет
+          final allCategories = <SweetCategory>{};
+          final allLocations = <StorageLocation>{};
+          for (var candy in state.candies) {
+            allCategories.add(candy.category);
+            allLocations.add(candy.location);
+          }
+
+          // Готовим структуру категорий и мест (без фильтра) для отображения
+          Map<SweetCategory, Map<StorageLocation, List<Candy>>> categoryMap =
+              {};
+          for (var candy in state.candies) {
+            categoryMap.putIfAbsent(candy.category, () => {});
+            categoryMap[candy.category]!.putIfAbsent(candy.location, () => []);
+            categoryMap[candy.category]![candy.location]!.add(candy);
+          }
+
+          // Фильтрация по имени и месту хранения
+          bool candyMatchesFilter(Candy candy) {
             final matchesName = candy.name.toLowerCase().contains(query);
 
-            // Фильтрация по местам хранения:
             if (_groupByCategory) {
               // Используем storageFilter по категориям
               final categoryId = candy.category.id;
               if (storageFilter.containsKey(categoryId)) {
                 final categoryLocations = storageFilter[categoryId]!;
                 if (categoryLocations.isEmpty) {
+                  // Нет выбранных мест для этой категории, значит показываем все
                   return matchesName;
                 } else {
-                  return matchesName && categoryLocations.contains(candy.location.toString());
+                  // Показать только выбранные места
+                  return matchesName &&
+                      categoryLocations
+                          .contains(candy.location.index.toString());
                 }
               } else {
+                // Для этой категории фильтра нет, показываем все конфеты
                 return matchesName;
               }
             } else if (_groupByLocation) {
-              // Если группировка по категориям выключена, но включена группировка по местам,
-              // используем globalLocationFilter
+              // Глобальный фильтр по местам
               if (globalLocationFilter.isEmpty) {
                 return matchesName;
               } else {
-                return matchesName && globalLocationFilter.contains(candy.location.toString());
+                return matchesName &&
+                    globalLocationFilter
+                        .contains(candy.location.index.toString());
               }
             } else {
-              // Если нет группировки по категориям и нет группировки по местам,
-              // фильтр по местам не применяется
+              // Без фильтра по месту
               return matchesName;
             }
-          }).toList();
-
-          // Группировка
-          // По категории и месту хранения
-          Map<SweetCategory, Map<StorageLocation, List<Candy>>> filtredGroupedCandys = {};
-          for (final candy in filteredCandies) {
-            filtredGroupedCandys.putIfAbsent(candy.category, () => {});
-            filtredGroupedCandys[candy.category]!.putIfAbsent(candy.location, () => []);
-            filtredGroupedCandys[candy.category]![candy.location]!.add(candy);
           }
 
-          // Группировка по категории, если включена
-          Map<SweetCategory, List<Candy>> groupedByCategory = {};
-          for (final candy in filteredCandies) {
-            groupedByCategory.putIfAbsent(candy.category, () => []);
-            groupedByCategory[candy.category]!.add(candy);
+          // Применяем фильтры к каждой категории, чтобы категории не пропадали
+          Map<SweetCategory, Map<StorageLocation, List<Candy>>> filteredMap =
+              {};
+          for (var category in categoryMap.keys) {
+            Map<StorageLocation, List<Candy>> locationMap = {};
+            for (var location in categoryMap[category]!.keys) {
+              final filteredCandies = categoryMap[category]![location]!
+                  .where(candyMatchesFilter)
+                  .toList();
+              if (filteredCandies.isNotEmpty) {
+                locationMap[location] = filteredCandies;
+              } else {
+                // Если хотим, чтобы категория не пропадала и показывалась пустой,
+                // можно оставить пустой список.
+                // Но лучше показывать категорию даже если нет конфет,
+                // значит просто не добавляем locationMap для этого location,
+                // и если в итоге будет пусто - категория покажется с пустым контентом.
+              }
+            }
+            filteredMap[category] = locationMap;
           }
 
-          // Если группируем по местам без категорий
+          // Для случая без категорий, но с локациями
+          // Если не groupByCategory но groupByLocation, покажем глобальный фильтр
+          List<Candy> allCandiesFiltered =
+              state.candies.where(candyMatchesFilter).toList();
           Set<StorageLocation> distinctLocations = {};
           if (_groupByLocation && !_groupByCategory) {
-            for (var candy in filteredCandies) {
+            for (var candy in allCandiesFiltered) {
               distinctLocations.add(candy.location);
             }
           }
@@ -459,7 +501,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                               },
                               icon: AppIcon(
-                                asset: IconProvider.notifications.buildImageUrl(),
+                                asset:
+                                    IconProvider.notifications.buildImageUrl(),
                                 fit: BoxFit.fitWidth,
                                 width: 32,
                                 height: 39,
@@ -469,21 +512,23 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       if (_groupByCategory && _groupByLocation)
+                        // Отображаем категории и их места
                         ListView.separated(
                           separatorBuilder: (context, index) => const Gap(16),
-                          itemCount: filtredGroupedCandys.length,
+                          itemCount: filteredMap.length,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            final category = filtredGroupedCandys.keys.elementAt(index);
-                            final storageMap = filtredGroupedCandys[category]!;
+                            final category = filteredMap.keys.elementAt(index);
+                            final storageMap = filteredMap[category]!;
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 // Заголовок категории
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 21, right: 21),
+                                  padding: const EdgeInsets.only(
+                                      left: 21, right: 21),
                                   child: Text(
                                     category.name.toUpperCase(),
                                     style: const TextStyle(
@@ -505,25 +550,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const Gap(4),
                                 // Виджеты для выбора места хранения (связаны с категорией)
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 16, right: 16),
+                                  padding: const EdgeInsets.only(
+                                      left: 16, right: 16),
                                   child: SingleChildScrollView(
                                     scrollDirection: Axis.horizontal,
                                     child: Row(
-                                      children: storageMap.keys.map((storageLocation) {
+                                      children: (categoryMap[category]!.keys)
+                                          .map((storageLocation) {
                                         return buildStorageWidget(
                                           storageName: storageLocation.name,
                                           categoryId: category.id,
-                                          locationId: storageLocation.toString(),
+                                          locationId:
+                                              storageLocation.index.toString(),
                                         );
                                       }).toList(),
                                     ),
                                   ),
                                 ),
                                 const AppDivider(),
-                                // Отображение конфет
-                                _buildContent(
-                                  storageMap.values.expand((x) => x).toList(),
-                                ),
+                                // Отображаем отфильтрованные конфеты для этой категории
+                                // Если пусто - покажем просто пустое место
+                                _buildContent(storageMap.values
+                                    .expand((x) => x)
+                                    .toList()),
                               ],
                             );
                           },
@@ -531,19 +580,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       else if (_groupByCategory)
                         ListView.separated(
                           separatorBuilder: (context, index) => const Gap(16),
-                          itemCount: groupedByCategory.length,
+                          itemCount: filteredMap.length,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            final category = groupedByCategory.keys.elementAt(index);
-                            final candies = groupedByCategory[category]!;
+                            final category = filteredMap.keys.elementAt(index);
+                            final storageMap = filteredMap[category]!;
+                            final candies =
+                                storageMap.values.expand((x) => x).toList();
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 // Заголовок категории
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 21, right: 21),
+                                  padding: const EdgeInsets.only(
+                                      left: 21, right: 21),
                                   child: Text(
                                     category.name.toUpperCase(),
                                     style: const TextStyle(
@@ -563,7 +615,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 const Gap(4),
-                                // Нет фильтров по местам без группировки по местам
                                 _buildContent(candies),
                               ],
                             );
@@ -574,7 +625,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(left: 21, right: 21),
+                              padding:
+                                  const EdgeInsets.only(left: 21, right: 21),
                               child: Text(
                                 'By Location'.toUpperCase(),
                                 style: const TextStyle(
@@ -598,22 +650,21 @@ class _HomeScreenState extends State<HomeScreen> {
                             SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Row(
-                                children: distinctLocations.map((loc) {
+                                children: allLocations.map((loc) {
                                   return buildStorageWidget(
                                     storageName: loc.name,
-                                    locationId: loc.name.toLowerCase(),
-                                    // categoryId не нужен, тк без категории
+                                    locationId: loc.index.toString(),
                                   );
                                 }).toList(),
                               ),
                             ),
                             const AppDivider(),
-                            _buildContent(filteredCandies),
+                            _buildContent(allCandiesFiltered),
                           ],
                         )
                       else
                         // Если нет группировки, просто показываем все
-                        _buildContent(filteredCandies),
+                        _buildContent(allCandiesFiltered),
                     ],
                   ),
                 ),
@@ -627,10 +678,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     radius: 10,
                     color: ButtonColors.pink,
                     onPressed: () {
-                      context.push("${RouteValue.home.path}/${RouteValue.add.path}");
+                      showTemplateSelectionDialog(
+                        context: context,
+                        templates: state.candies,
+                      );
                     },
                     widget: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 10),
                       child: AppIcon(
                         asset: IconProvider.add.buildImageUrl(),
                         width: 29,
@@ -650,10 +705,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Универсальный виджет фильтра для места хранения.
-  /// Если categoryId передан и _groupByCategory = true, фильтруем для этой категории.
-  /// Если categoryId не передан или _groupByCategory = false, используем глобальный фильтр.
-  Widget buildStorageWidget({required String storageName, String? categoryId, required String locationId}) {
+  Widget buildStorageWidget(
+      {required String storageName,
+      String? categoryId,
+      required String locationId}) {
     bool isSelected;
     if (_groupByCategory && categoryId != null) {
       final locations = storageFilter[categoryId] ?? [];
@@ -680,7 +735,7 @@ class _HomeScreenState extends State<HomeScreen> {
               storageFilter[categoryId] = currentList;
             }
           } else {
-            // Глобальный фильтр
+            // Глобальный фильтр для мест
             if (globalLocationFilter.contains(locationId)) {
               globalLocationFilter.remove(locationId);
             } else {
@@ -736,4 +791,263 @@ class AppDivider extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<int?> showConsumeCandyDialog({
+  required BuildContext context,
+  required Candy candy,
+}) async {
+  int currentValue = 1; // начальное значение
+
+  return showDialog<int>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Consume Candies'),
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: () {
+                if (currentValue > 1) {
+                  currentValue--;
+                  (context as Element).markNeedsBuild();
+                }
+              },
+              icon: const Icon(Icons.remove),
+            ),
+            Expanded(
+              child: TextField(
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  hintText: 'Count',
+                  border: const OutlineInputBorder(),
+                ),
+                controller:
+                    TextEditingController(text: currentValue.toString()),
+                onChanged: (value) {
+                  final intVal = int.tryParse(value);
+                  if (intVal != null &&
+                      intVal >= 1 &&
+                      intVal <= candy.quantity) {
+                    currentValue = intVal;
+                  } else if (intVal != null && intVal > candy.quantity) {
+                    currentValue = candy.quantity;
+                    (context as Element).markNeedsBuild();
+                  } else if (intVal != null && intVal < 1) {
+                    currentValue = 1;
+                    (context as Element).markNeedsBuild();
+                  }
+                },
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                if (currentValue < candy.quantity) {
+                  currentValue++;
+                  (context as Element).markNeedsBuild();
+                }
+              },
+              icon: const Icon(Icons.add),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              context.pop(); // Отмена
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (candy.quantity - currentValue > 0) {
+                context.read<CandyBloc>().add(UpdateCandy(
+                    candy.copyWith(quantity: candy.quantity - currentValue)));
+              } else {
+                context.read<CandyBloc>().add(RemoveCandy(candy));
+              }
+
+              context.pop(); // Отмена
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<String?> showTemplateSelectionDialog({
+  required BuildContext context,
+  required List<Candy> templates,
+}) async {
+  // Если нет шаблонов
+  if (templates.isEmpty) {
+    return showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('No Templates'),
+          content: const Text('There are no candy templates available.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                context.pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                context.pop();
+                context.push("${RouteValue.home.path}/${RouteValue.add.path}");
+              },
+              child: const Text('Create'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Есть шаблоны
+  String? selectedTemplateId;
+  return showDialog<String>(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Select Template'),
+            content: SizedBox(
+              width: double.minPositive,
+              height: 200,
+              child: ListView(
+                children: templates.map((tmpl) {
+                  return RadioListTile<String>(
+                    title: Text(tmpl.name),
+                    value: tmpl.id,
+                    groupValue: selectedTemplateId,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedTemplateId = value;
+                        (context as Element).markNeedsBuild();
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  context.pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              if (selectedTemplateId == null)
+                ElevatedButton(
+                  onPressed: () {
+                    context.pop();
+                    context
+                        .push("${RouteValue.home.path}/${RouteValue.add.path}");
+                  },
+                  child: const Text('Create'),
+                )
+              else
+                ElevatedButton(
+                  onPressed: () { context.pop();
+                    showAddFromTemplateDialog(
+                        context: context,
+                        template: templates.firstWhere(
+                            (element) => element.id == selectedTemplateId));
+                   
+                  },
+                  child: const Text('OK'),
+                ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+/// Диалог для ввода количества конфет при добавлении из шаблона
+Future<int?> showAddFromTemplateDialog({
+  required BuildContext context,
+  required Candy template,
+}) async {
+  int currentValue = 1;
+
+  return showDialog<int>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Add candies from template "${template.name}"'),
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: () {
+                if (currentValue > 1) {
+                  currentValue--;
+                  (context as Element).markNeedsBuild();
+                }
+              },
+              icon: const Icon(Icons.remove),
+            ),
+            Expanded(
+              child: TextField(
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                decoration: const InputDecoration(
+                  hintText: 'Count',
+                  border: OutlineInputBorder(),
+                ),
+                controller:
+                    TextEditingController(text: currentValue.toString()),
+                onChanged: (value) {
+                  final intVal = int.tryParse(value);
+                  if (intVal != null && intVal >= 1) {
+                    currentValue = intVal;
+                  } else {
+                    currentValue = 1;
+                    (context as Element).markNeedsBuild();
+                  }
+                },
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                // Нет верхнего ограничения, можно при желании добавить
+                currentValue++;
+                (context as Element).markNeedsBuild();
+              },
+              icon: const Icon(Icons.add),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              context.pop();
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              context.pop();
+              context.read<CandyBloc>().add(SaveCandy(template.copyWith(
+                    quantity: currentValue,
+                    id: const Uuid().v4(),
+                  )));
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
 }

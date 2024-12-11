@@ -122,6 +122,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     Emitter<CandyState> emit,
   ) async {
     try {
+
       await _candyRepository.update(event.candy);
       add(LoadCandy());
     } catch (e) {
@@ -162,23 +163,21 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
   ) async {
     // Очищаем предыдущий список "ожидания"
     _pendingPeriodicUsage.clear();
-    logger.e("start f");
+
 
     final now = DateTime.now();
     final currentWeekday = now.weekday; // 1 = Monday, 7 = Sunday
 
-    logger.e(_allCandies);
+ 
 
     for (var candy in _allCandies) {
-      logger.e(candy.isPeriodic);
-      logger.e(candy.periodicityDays);
-      logger.e(candy.periodicityCount);
+
 
       if (candy.isPeriodic &&
           candy.periodicityDays != null &&
           candy.periodicityDays!.isNotEmpty &&
           candy.periodicityCount != null) {
-        logger.e("start");
+   
         final days = candy.periodicityDays!;
         final index = candy.currentPeriodicIndex ?? 0;
         if (currentWeekday == days[index]) {
@@ -192,7 +191,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
             await _candyRepository.update(candy.copyWith(
                 currentPeriodicIndex: candy.currentPeriodicIndex));
 
-            logger.e(countToUse);
+       
 
             if (countToUse > 0) {
               _pendingPeriodicUsage[candy.id] = countToUse;

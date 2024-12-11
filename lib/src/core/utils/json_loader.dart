@@ -50,6 +50,7 @@ class JsonLoader {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<T> itemList = await loadData();
 
+
     itemList.removeWhere((element) => element == item);
 
     prefs.setString(key, json.encode(itemList.map(toMap).toList()));
