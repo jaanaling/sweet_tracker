@@ -32,6 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Построение контента для списка конфет
   Widget _buildContent(List<Candy> candies) {
     return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16.0),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4, // Например, 4 столбца
@@ -264,48 +266,31 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   )
                 else if (_groupByLocation)
-                  Expanded(
-                    child: ListView.separated(
-                      separatorBuilder: (context, index) => const Divider(),
-                      itemCount: filtredGropedCandys.length,
-                      itemBuilder: (context, index) {
-                        final category =
-                            filtredGropedCandys.keys.elementAt(index);
-                        final storageMap =
-                            filtredGropedCandys.values.elementAt(index);
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Заголовок категории
 
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      // Виджеты для выбора места хранения
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
                           children: [
-                            // Заголовок категории
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                category.name.toUpperCase(),
-                              ),
-                            ),
-                            const Gap(16),
-                            // Виджеты для выбора места хранения
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: [
-                                  ...storageMap.keys
-                                      .map((storageLocation) => storageWidget(
-                                          storageLocation.name,
-                                          category,
-                                          storageLocation.name))
-                                      .toList(),
-                                ],
-                              ),
-                            ),
-                            // Отображение конфет
-                            _buildContent(
-                                storageMap.values.expand((x) => x).toList()),
+                            ...groupedCandys.values
+                                .expand((x) => x)
+                                .toList()
+                                .map((storageLocation) => storageWidget(
+                                    storageLocation.location.name,
+                                    storageLocation.category,
+                                    storageLocation.location.name))
+                                .toList(),
                           ],
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                      // Отображение конфет
+                      _buildContent(
+                          groupedCandys.values.expand((x) => x).toList()),
+                    ],
                   )
                 else
                   // Если нет группировки, отображаем все конфеты
@@ -331,12 +316,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Виджет для выбора места хранения
-  TextButton storageWidget(String storage, SweetCategory category, String id) {
+  TextButton storageWidget(String storage, SweetCategory? category, String id) {
     return TextButton(
       onPressed: () {
         setState(() {
           if (storageFilter[category] == null) {
-            storageFilter[category] = [id];
+            storageFilter[category ?? SweetCategory(id: id, name: storage)] = [
+              id
+            ];
           } else if (storageFilter[category]!.contains(id)) {
             storageFilter[category]!.remove(id);
           } else {

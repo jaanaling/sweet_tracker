@@ -55,21 +55,18 @@ class CancelPeriodicUsage extends CandyEvent {
 // Список покупок
 class AddToShoppingList extends CandyEvent {
   final String id;
-  final String name;
-  final int quantity;
-  final SweetType type;
-  final String? note;
+  final Candy candy;
 
   const AddToShoppingList({
     required this.id,
-    required this.name,
-    required this.quantity,
-    required this.type,
-    this.note,
+    required this.candy,
   });
 
   @override
-  List<Object> get props => [id, name, quantity, type, note ?? ''];
+  List<Object> get props => [
+        id,
+        candy,
+      ];
 }
 
 class RemoveFromShoppingList extends CandyEvent {

@@ -7,52 +7,35 @@ import 'package:sweet_planner/src/feature/candy/model/sweet_type.dart';
 /// Модель для списка покупок
 class ShoppingItem {
   final String id;
-  final String name;
-  final int quantity;
-  final SweetType type;
-  final String? note;
+
+  final Candy candy;
 
   ShoppingItem({
     required this.id,
-    required this.name,
-    required this.quantity,
-    required this.type,
-    this.note,
+    required this.candy,
   });
 
   ShoppingItem copyWith({
     String? id,
-    String? name,
-    int? quantity,
-    SweetType? type,
-    String? note,
+    Candy? candy,
   }) {
     return ShoppingItem(
       id: id ?? this.id,
-      name: name ?? this.name,
-      quantity: quantity ?? this.quantity,
-      type: type ?? this.type,
-      note: note ?? this.note,
+      candy: candy ?? this.candy,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'name': name,
-      'quantity': quantity,
-      'type': type.name,
-      'note': note,
+      'name': candy,
     };
   }
 
   factory ShoppingItem.fromMap(Map<String, dynamic> map) {
     return ShoppingItem(
       id: map['id'] as String,
-      name: map['name'] as String,
-      quantity: map['quantity'] as int,
-      type: SweetType.values.firstWhere((e) => e.name == map['type']),
-      note: map['note'] != null ? map['note'] as String : null,
+      candy: Candy.fromMap(map['candy'] as Map<String, dynamic>),
     );
   }
 
@@ -63,7 +46,7 @@ class ShoppingItem {
 
   @override
   String toString() {
-    return 'ShoppingItem(id: $id, name: $name, quantity: $quantity, type: $type, note: $note)';
+    return 'ShoppingItem(id: $id, candy: $candy)';
   }
 
   @override
@@ -71,18 +54,13 @@ class ShoppingItem {
     if (identical(this, other)) return true;
 
     return other.id == id &&
-        other.name == name &&
-        other.quantity == quantity &&
-        other.type == type &&
-        other.note == note;
+        other.candy == candy;
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-        name.hashCode ^
-        quantity.hashCode ^
-        type.hashCode ^
-        note.hashCode;
+        candy.hashCode 
+       ;
   }
 }

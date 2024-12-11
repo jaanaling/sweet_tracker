@@ -15,8 +15,9 @@ class Candy {
 
   final bool isPermanent;
   final bool isPeriodic;
-  final int? periodicityDays;
+  final List<int>? periodicityDays;
   final int? periodicityCount;
+  final int? currentPeriodicIndex;
   final SweetType type;
   final String? imageUrl;
   bool get isExpired =>
@@ -32,6 +33,7 @@ class Candy {
     this.expirationDate,
     required this.isPermanent,
     required this.isPeriodic,
+    this.currentPeriodicIndex,
     this.periodicityDays,
     this.periodicityCount,
     required this.type,
@@ -48,7 +50,8 @@ class Candy {
     DateTime? expirationDate,
     bool? isPermanent,
     bool? isPeriodic,
-    int? periodicityDays,
+    List<int>? periodicityDays,
+    int? currentPeriodicIndex,
     int? periodicityCount,
     SweetType? type,
     String? imageUrl,
@@ -64,6 +67,7 @@ class Candy {
       expirationDate: expirationDate ?? this.expirationDate,
       isPermanent: isPermanent ?? this.isPermanent,
       isPeriodic: isPeriodic ?? this.isPeriodic,
+      currentPeriodicIndex: currentPeriodicIndex ?? this.currentPeriodicIndex,
       periodicityDays: periodicityDays ?? this.periodicityDays,
       periodicityCount: periodicityCount ?? this.periodicityCount,
       type: type ?? this.type,
@@ -80,6 +84,7 @@ class Candy {
       'location': location.name,
       'quantity': quantity,
       'expirationDate': expirationDate?.millisecondsSinceEpoch,
+      'currentPeriodicIndex': currentPeriodicIndex,
       'isPermanent': isPermanent,
       'isPeriodic': isPeriodic,
       'periodicityDays': periodicityDays,
@@ -103,8 +108,12 @@ class Candy {
           : null,
       isPermanent: map['isPermanent'] as bool,
       isPeriodic: map['isPeriodic'] as bool,
-      periodicityDays:
-          map['periodicityDays'] != null ? map['periodicityDays'] as int : null,
+      currentPeriodicIndex: map['currentPeriodicIndex'] != null
+          ? map['currentPeriodicIndex'] as int
+          : null,
+      periodicityDays: map['periodicityDays'] != null
+          ? List<int>.from(map['periodicityDays'] as List)
+          : null,
       periodicityCount: map['periodicityCount'] != null
           ? map['periodicityCount'] as int
           : null,
@@ -133,6 +142,8 @@ class Candy {
         other.category == category &&
         other.location == location &&
         other.quantity == quantity &&
+        other.currentPeriodicIndex == currentPeriodicIndex &&
+
         other.expirationDate == expirationDate &&
         other.isPermanent == isPermanent &&
         other.isPeriodic == isPeriodic &&
@@ -148,6 +159,7 @@ class Candy {
     return id.hashCode ^
         name.hashCode ^
         category.hashCode ^
+        currentPeriodicIndex.hashCode ^
         location.hashCode ^
         quantity.hashCode ^
         expirationDate.hashCode ^

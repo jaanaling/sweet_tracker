@@ -118,17 +118,29 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     // Очищаем предыдущий список "ожидания"
     _pendingPeriodicUsage.clear();
 
+    final now = DateTime.now();
+    final currentWeekday = now.weekday; // 1 = Monday, 7 = Sunday
+
     for (var candy in _allCandies) {
       if (candy.isPeriodic &&
           candy.periodicityDays != null &&
+          candy.periodicityDays!.isNotEmpty &&
           candy.periodicityCount != null) {
-        // Проверим, есть ли что списывать
-        if (candy.quantity > 0) {
-          final countToUse = candy.quantity >= candy.periodicityCount!
-              ? candy.periodicityCount!
-              : candy.quantity;
-          if (countToUse > 0) {
-            _pendingPeriodicUsage[candy.id] = countToUse;
+        // Проверяем день недели
+        final days = candy.periodicityDays!;
+        // Предполагаем, что у конфеты есть текущее состояние индекса в списке
+        final index = candy.currentPeriodicIndex ?? 0;
+
+        // Если сегодня день недели, указанный в списке на позиции currentPeriodicIndex
+        if (currentWeekday == days[index]) {
+          // Проверим, есть ли что списывать
+          if (candy.quantity > 0) {
+            final countToUse = candy.quantity >= candy.periodicityCount!
+                ? candy.periodicityCount!
+                : candy.quantity;
+            if (countToUse > 0) {
+              _pendingPeriodicUsage[candy.id] = countToUse;
+            }
           }
         }
       }
@@ -212,10 +224,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
   ) async {
     final item = ShoppingItem(
       id: event.id,
-      name: event.name,
-      quantity: event.quantity,
-      type: event.type,
-      note: event.note,
+      candy: event.candy,
     );
     _shoppingList.add(item);
 
