@@ -50,9 +50,9 @@ class _RootNavigationScreenState extends State<RootNavigationScreen> {
 
     switch (index) {
       case 0:
-        cIndex = 1;
-      case 1:
         cIndex = 0;
+      case 1:
+        cIndex = 1;
       case 2:
         cIndex = 2;
       case 3:

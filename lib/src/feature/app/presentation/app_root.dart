@@ -11,7 +11,9 @@ class AppRoot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (context) =>CandyBloc()..add(LoadCandy())..add(CheckPeriodicity ()),
+        create: (context) => CandyBloc()
+          ..add(LoadCandy())
+       ,
         child: CupertinoApp.router(
           theme: const CupertinoThemeData(
             brightness: Brightness.light,

@@ -17,7 +17,7 @@ class Candy {
   final bool isPeriodic;
   final List<int>? periodicityDays;
   final int? periodicityCount;
-  final int? currentPeriodicIndex;
+   int? currentPeriodicIndex;
   final SweetType type;
   final String? imageUrl;
   bool get isExpired =>

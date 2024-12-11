@@ -32,281 +32,281 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _groupByLocation = true;
   bool _showFullDetails = false;
   final TextEditingController _searchController = TextEditingController();
-  final Map<SweetCategory, List<String>> storageFilter = {};
 
-  /// Построение контента для списка конфет
+  /// Хранилище выбора фильтров по местам хранения для группировки по категориям:
+  /// ключ - id категории, значение - список id мест хранения
+  final Map<String, List<String>> storageFilter = {};
+
+  /// Глобальный фильтр по местам хранения, если категории отключены
+  final List<String> globalLocationFilter = [];
+
   Widget _buildContent(List<Candy> candies) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Wrap(
-          spacing: 15,
-          runSpacing: 15,
-          children: candies.map((candy) {
-            return Padding(
-              padding: const EdgeInsets.only(top: 9, right: 6),
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 9, right: 6),
-                    child: AppButton(
-                      color: ButtonColors.darkPurple,
-                      radius: 11,
-                      widget: Padding(
-                        padding:
-                            const EdgeInsets.only(left: 4, right: 4, bottom: 4),
-                        child: Ink(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(11),
-                            gradient: LinearGradient(
-                              begin: Alignment(0.00, -1.00),
-                              end: Alignment(0, 1),
-                              colors: [Colors.white, Color(0xFFCDDAE8)],
-                            ),
+        spacing: 15,
+        runSpacing: 15,
+        children: candies.map((candy) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 9, right: 6),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 9, right: 6),
+                  child: AppButton(
+                    color: ButtonColors.darkPurple,
+                    radius: 11,
+                    widget: Padding(
+                      padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
+                      child: Ink(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(11),
+                          gradient: const LinearGradient(
+                            begin: Alignment(0.00, -1.00),
+                            end: Alignment(0, 1),
+                            colors: [Colors.white, Color(0xFFCDDAE8)],
                           ),
-                          child: _showFullDetails
-                              ? SizedBox(
-                                  width: 155,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(top: 17),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Align(
-                                          alignment: Alignment.topLeft,
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.only(
-                                              topRight: Radius.circular(50.50),
-                                              bottomRight:
-                                                  Radius.circular(50.50),
-                                            ),
-                                            child: AppIcon(
-                                              width: 128,
-                                              height: 72,
-                                              fit: BoxFit.cover,
-                                              asset: candy.imageUrl ??
-                                                  IconProvider.buildImageByName(
-                                                    candy.type.name,
-                                                  ),
-                                            ),
+                        ),
+                        child: _showFullDetails
+                            ? SizedBox(
+                                width: 155,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 17),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Align(
+                                        alignment: Alignment.topLeft,
+                                        child: ClipRRect(
+                                          borderRadius: const BorderRadius.only(
+                                            topRight: Radius.circular(50.50),
+                                            bottomRight: Radius.circular(50.50),
+                                          ),
+                                          child: AppIcon(
+                                            width: 128,
+                                            height: 72,
+                                            fit: BoxFit.cover,
+                                            asset: candy.imageUrl ??
+                                                IconProvider.buildImageByName(
+                                                  candy.type.name,
+                                                ),
                                           ),
                                         ),
-                                        Gap(5),
-                                        SizedBox(
-                                          width: 139,
-                                          child: Center(
-                                            child: Text(
-                                              candy.name,
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 18,
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.w500,
-                                                height: 0,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const Gap(5),
+                                      SizedBox(
+                                        width: 139,
+                                        child: Center(
+                                          child: Text(
+                                            candy.name,
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 18,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w500,
+                                              height: 0,
                                             ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
-                                        Gap(5),
-                                        SizedBox(
-                                          width: 139,
-                                          child: Center(
-                                            child: Text(
-                                              'location: ${candy.location.name}',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14,
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.w300,
-                                                height: 0,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const Gap(5),
+                                      SizedBox(
+                                        width: 139,
+                                        child: Center(
+                                          child: Text(
+                                            'location: ${candy.location.name}',
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w300,
+                                              height: 0,
                                             ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
-                                        Gap(5),
-                                        SizedBox(
-                                          width: 139,
-                                          child: Center(
-                                            child: Text(
-                                              candy.category.name,
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14,
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.w300,
-                                                height: 0,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const Gap(5),
+                                      SizedBox(
+                                        width: 139,
+                                        child: Center(
+                                          child: Text(
+                                            candy.category.name,
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w300,
+                                              height: 0,
                                             ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
-                                        Gap(5),
-                                        SizedBox(
-                                          width: 139,
-                                          child: Center(
-                                            child: Text(
-                                              candy.expirationDate != null
-                                                  ? formatDate(
-                                                      candy.expirationDate!)
-                                                  : 'No expiration',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14,
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.w300,
-                                                height: 0,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const Gap(5),
+                                      SizedBox(
+                                        width: 139,
+                                        child: Center(
+                                          child: Text(
+                                            candy.expirationDate != null
+                                                ? formatDate(candy.expirationDate!)
+                                                : 'No expiration',
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w300,
+                                              height: 0,
                                             ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
-                                        Gap(5),
-                                        SizedBox(
-                                          width: 139,
-                                          child: Center(
-                                            child: Text(
-                                              candy.type.name,
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14,
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.w300,
-                                                height: 0,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ),
-                                        Gap(5),
-                                        SizedBox(
-                                          width: 139,
-                                          child: Center(
-                                            child: Text(
-                                              'count: ${candy.quantity}',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14,
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.w300,
-                                                height: 0,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ),
-                                        Gap(7),
-                                        Row(
-                                          children: [
-                                            Spacer(),
-                                            AppButton(
-                                                color: ButtonColors.pink,
-                                                widget: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 17,
-                                                      vertical: 2),
-                                                  child: Text(
-                                                    'consume',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 11,
-                                                      fontFamily: 'Poppins',
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      height: 0,
-                                                    ),
-                                                  ),
-                                                )),
-                                            Spacer(),
-                                            IconButton(
-                                              padding: EdgeInsets.zero,
-                                              onPressed: () {},
-                                              icon: AppIcon(
-                                                asset: IconProvider.delete
-                                                    .buildImageUrl(),
-                                                width: 20,
-                                                fit: BoxFit.fitWidth,
-                                                height: 24,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              : Padding(
-                                  padding: const EdgeInsets.all(4),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: AppIcon(
-                                      width: 86,
-                                      height: 86,
-                                      fit: BoxFit.cover,
-                                      asset: candy.imageUrl ??
-                                          IconProvider.buildImageByName(
+                                      ),
+                                      const Gap(5),
+                                      SizedBox(
+                                        width: 139,
+                                        child: Center(
+                                          child: Text(
                                             candy.type.name,
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w300,
+                                              height: 0,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                    ),
+                                        ),
+                                      ),
+                                      const Gap(5),
+                                      SizedBox(
+                                        width: 139,
+                                        child: Center(
+                                          child: Text(
+                                            'count: ${candy.quantity}',
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w300,
+                                              height: 0,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ),
+                                      const Gap(7),
+                                      Row(
+                                        children: [
+                                          const Spacer(),
+                                          AppButton(
+                                            color: ButtonColors.pink,
+                                            widget: const Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 17,
+                                                vertical: 2,
+                                              ),
+                                              child: Text(
+                                                'consume',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 11,
+                                                  fontFamily: 'Poppins',
+                                                  fontWeight: FontWeight.w400,
+                                                  height: 0,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          IconButton(
+                                            padding: EdgeInsets.zero,
+                                            onPressed: () {},
+                                            icon: AppIcon(
+                                              asset: IconProvider.delete.buildImageUrl(),
+                                              width: 20,
+                                              fit: BoxFit.fitWidth,
+                                              height: 24,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ),
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.all(4),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: AppIcon(
+                                    width: 86,
+                                    height: 86,
+                                    fit: BoxFit.cover,
+                                    asset: candy.imageUrl ??
+                                        IconProvider.buildImageByName(
+                                          candy.type.name,
+                                        ),
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
+                if (candy.expirationDate != null &&
+                    DateTime.now().isAfter(candy.expirationDate!))
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      width: 67,
+                      height: 22,
+                      decoration: ShapeDecoration(
+                        color: const Color(0xFFBB0000),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(11),
+                        ),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'expired',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w400,
+                            height: 0,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                  if (candy.expirationDate != null &&
-                      DateTime.now().isAfter(candy.expirationDate!))
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        width: 67,
-                        height: 22,
-                        decoration: ShapeDecoration(
-                          color: Color(0xFFBB0000),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(11),
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'expired',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                              height: 0,
-                            ),
-                          ),
-                        ),
+                if (_showFullDetails)
+                  Positioned(
+                    top: 15,
+                    left: 5,
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {},
+                      icon: AppIcon(
+                        asset: IconProvider.edit.buildImageUrl(),
+                        width: 21,
+                        fit: BoxFit.fitWidth,
+                        height: 21,
                       ),
                     ),
-                  if (_showFullDetails)
-                    Positioned(
-                      top: 15,
-                      left: 5,
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () {},
-                        icon: AppIcon(
-                          asset: IconProvider.edit.buildImageUrl(),
-                          width: 21,
-                          fit: BoxFit.fitWidth,
-                          height: 21,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            );
-          }).toList()),
+                  ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 
-  /// Отображение всплывающего меню настроек
   void _showSettingsPopup() async {
     final result = await showMenu(
       context: context,
@@ -340,6 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _showFullDetails = !_showFullDetails;
         }
         storageFilter.clear();
+        globalLocationFilter.clear();
       });
     }
   }
@@ -349,53 +350,63 @@ class _HomeScreenState extends State<HomeScreen> {
     return BlocBuilder<CandyBloc, CandyState>(
       builder: (context, state) {
         if (state is CandyLoaded) {
-          // Объединенная фильтрация по имени и месту хранения
-          final List<Candy> filteredCandys = state.candies.where((candy) {
-            // Фильтрация по имени конфеты
-            bool matchesName = candy.name
-                .toLowerCase()
-                .contains(_searchController.text.toLowerCase());
+          final query = _searchController.text.toLowerCase();
+          // Фильтрация
+          final filteredCandies = state.candies.where((candy) {
+            final matchesName = candy.name.toLowerCase().contains(query);
 
-            // Фильтрация по месту хранения (местоположению) для категории
-            bool matchesLocation = false;
-            if (storageFilter.containsKey(candy.category)) {
-              final categoryFilter = storageFilter[candy.category]!;
-              if (categoryFilter.isEmpty) {
-                matchesLocation =
-                    true; // Если фильтр пустой, пропускаем местоположение
+            // Фильтрация по местам хранения:
+            if (_groupByCategory) {
+              // Используем storageFilter по категориям
+              final categoryId = candy.category.id;
+              if (storageFilter.containsKey(categoryId)) {
+                final categoryLocations = storageFilter[categoryId]!;
+                if (categoryLocations.isEmpty) {
+                  return matchesName;
+                } else {
+                  return matchesName && categoryLocations.contains(candy.location.toString());
+                }
               } else {
-                // Проверка, если местоположение конфеты входит в фильтр
-                matchesLocation =
-                    categoryFilter.contains(candy.location.name) ||
-                        categoryFilter.contains(candy.location.name);
+                return matchesName;
+              }
+            } else if (_groupByLocation) {
+              // Если группировка по категориям выключена, но включена группировка по местам,
+              // используем globalLocationFilter
+              if (globalLocationFilter.isEmpty) {
+                return matchesName;
+              } else {
+                return matchesName && globalLocationFilter.contains(candy.location.toString());
               }
             } else {
-              matchesLocation =
-                  true; // Если нет фильтра для категории, пропускаем местоположение
+              // Если нет группировки по категориям и нет группировки по местам,
+              // фильтр по местам не применяется
+              return matchesName;
             }
-
-            // Возвращаем конфету, если она проходит оба фильтра
-            return matchesName && matchesLocation;
           }).toList();
 
-          // Группируем отфильтрованные конфеты по категории и месту хранения
-          final filtredGropedCandys =
-              <SweetCategory, Map<StorageLocation, List<Candy>>>{};
-          for (final candy in filteredCandys) {
-            filtredGropedCandys.putIfAbsent(candy.category, () => {});
-            filtredGropedCandys[candy.category]
-                ?.putIfAbsent(candy.location, () => [])
-                .add(candy);
+          // Группировка
+          // По категории и месту хранения
+          Map<SweetCategory, Map<StorageLocation, List<Candy>>> filtredGroupedCandys = {};
+          for (final candy in filteredCandies) {
+            filtredGroupedCandys.putIfAbsent(candy.category, () => {});
+            filtredGroupedCandys[candy.category]!.putIfAbsent(candy.location, () => []);
+            filtredGroupedCandys[candy.category]![candy.location]!.add(candy);
           }
-          final groupedCandys = <SweetCategory, List<Candy>>{};
-          for (final candy in filteredCandys) {
-            groupedCandys.putIfAbsent(candy.category, () => []).add(candy);
+
+          // Группировка по категории, если включена
+          Map<SweetCategory, List<Candy>> groupedByCategory = {};
+          for (final candy in filteredCandies) {
+            groupedByCategory.putIfAbsent(candy.category, () => []);
+            groupedByCategory[candy.category]!.add(candy);
           }
-          // Вывод отладочной информации
-          print('Filtered candies: $filteredCandys');
-          print('Grouped candies: $groupedCandys');
-          print('Filtered grouped candies: $filtredGropedCandys');
-          print('Storage filter: $storageFilter');
+
+          // Если группируем по местам без категорий
+          Set<StorageLocation> distinctLocations = {};
+          if (_groupByLocation && !_groupByCategory) {
+            for (var candy in filteredCandies) {
+              distinctLocations.add(candy.location);
+            }
+          }
 
           return Stack(
             children: [
@@ -405,8 +416,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 16),
                         child: Text(
                           'Home page',
                           style: TextStyle(
@@ -418,7 +429,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      Gap(5),
+                      const Gap(5),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Row(
@@ -429,7 +440,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 setState(() {});
                               },
                             ),
-                            Spacer(),
+                            const Spacer(),
                             IconButton(
                               padding: EdgeInsets.zero,
                               onPressed: _showSettingsPopup,
@@ -448,8 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                               },
                               icon: AppIcon(
-                                asset:
-                                    IconProvider.notifications.buildImageUrl(),
+                                asset: IconProvider.notifications.buildImageUrl(),
                                 fit: BoxFit.fitWidth,
                                 width: 32,
                                 height: 39,
@@ -460,26 +470,23 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       if (_groupByCategory && _groupByLocation)
                         ListView.separated(
-                          separatorBuilder: (context, index) => Gap(16),
-                          itemCount: filtredGropedCandys.length,
+                          separatorBuilder: (context, index) => const Gap(16),
+                          itemCount: filtredGroupedCandys.length,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            final category =
-                                filtredGropedCandys.keys.elementAt(index);
-                            final storageMap =
-                                filtredGropedCandys.values.elementAt(index);
+                            final category = filtredGroupedCandys.keys.elementAt(index);
+                            final storageMap = filtredGroupedCandys[category]!;
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 // Заголовок категории
                                 Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 21, right: 21),
+                                  padding: const EdgeInsets.only(left: 21, right: 21),
                                   child: Text(
                                     category.name.toUpperCase(),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 22,
                                       fontFamily: 'Cygre Black',
@@ -496,29 +503,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 const Gap(4),
-                                // Виджеты для выбора места хранения
+                                // Виджеты для выбора места хранения (связаны с категорией)
                                 Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 16, right: 16),
+                                  padding: const EdgeInsets.only(left: 16, right: 16),
                                   child: SingleChildScrollView(
                                     scrollDirection: Axis.horizontal,
                                     child: Row(
-                                      children: [
-                                        ...storageMap.keys
-                                            .map(
-                                              (storageLocation) =>
-                                                  storageWidget(
-                                                storageLocation.name,
-                                                category,
-                                                storageLocation.name,
-                                              ),
-                                            )
-                                            .toList(),
-                                      ],
+                                      children: storageMap.keys.map((storageLocation) {
+                                        return buildStorageWidget(
+                                          storageName: storageLocation.name,
+                                          categoryId: category.id,
+                                          locationId: storageLocation.toString(),
+                                        );
+                                      }).toList(),
                                     ),
                                   ),
                                 ),
-                                AppDivider(),
+                                const AppDivider(),
                                 // Отображение конфет
                                 _buildContent(
                                   storageMap.values.expand((x) => x).toList(),
@@ -530,29 +531,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       else if (_groupByCategory)
                         ListView.separated(
                           separatorBuilder: (context, index) => const Gap(16),
-                          itemCount: filtredGropedCandys.length,
+                          itemCount: groupedByCategory.length,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            final category =
-                                filtredGropedCandys.keys.elementAt(index);
-                            final storageMap =
-                                filtredGropedCandys.values.elementAt(index);
-
-                            // Получаем все конфеты для данной категории
-                            final candies =
-                                storageMap.values.expand((x) => x).toList();
+                            final category = groupedByCategory.keys.elementAt(index);
+                            final candies = groupedByCategory[category]!;
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 // Заголовок категории
                                 Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 21, right: 21),
+                                  padding: const EdgeInsets.only(left: 21, right: 21),
                                   child: Text(
                                     category.name.toUpperCase(),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 22,
                                       fontFamily: 'Cygre Black',
@@ -569,7 +563,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 const Gap(4),
-                                // Отображение конфет
+                                // Нет фильтров по местам без группировки по местам
                                 _buildContent(candies),
                               ],
                             );
@@ -579,39 +573,47 @@ class _HomeScreenState extends State<HomeScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Заголовок категории
-
-                            // Виджеты для выбора места хранения
+                            Padding(
+                              padding: const EdgeInsets.only(left: 21, right: 21),
+                              child: Text(
+                                'By Location'.toUpperCase(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 22,
+                                  fontFamily: 'Cygre Black',
+                                  fontWeight: FontWeight.w900,
+                                  height: 0,
+                                  shadows: [
+                                    Shadow(
+                                      offset: Offset(2, 2),
+                                      blurRadius: 4,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const Gap(4),
+                            // Фильтры по местам без категорий
                             SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Row(
-                                children: [
-                                  ...groupedCandys.values
-                                      .expand((x) => x)
-                                      .toList()
-                                      .map(
-                                        (storageLocation) => storageWidget(
-                                          storageLocation.location.name,
-                                          storageLocation.category,
-                                          storageLocation.location.name,
-                                        ),
-                                      )
-                                      .toList(),
-                                ],
+                                children: distinctLocations.map((loc) {
+                                  return buildStorageWidget(
+                                    storageName: loc.name,
+                                    locationId: loc.name.toLowerCase(),
+                                    // categoryId не нужен, тк без категории
+                                  );
+                                }).toList(),
                               ),
                             ),
-                            AppDivider(),
-                            // Отображение конфет
-                            _buildContent(
-                              groupedCandys.values.expand((x) => x).toList(),
-                            ),
+                            const AppDivider(),
+                            _buildContent(filteredCandies),
                           ],
                         )
                       else
-                        // Если нет группировки, отображаем все конфеты
-                        Expanded(
-                          child: _buildContent(filteredCandys),
-                        ),
+                        // Если нет группировки, просто показываем все
+                        _buildContent(filteredCandies),
                     ],
                   ),
                 ),
@@ -622,27 +624,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 6),
                   child: AppButton(
-                      radius: 10,
-                      color: ButtonColors.pink,
-                      onPressed: () {
-                        context.push(
-                            "${RouteValue.home.path}/${RouteValue.add.path}");
-                      },
-                      widget: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 10),
-                        child: AppIcon(
-                          asset: IconProvider.add.buildImageUrl(),
-                          width: 29,
-                          height: 29,
-                        ),
-                      )),
+                    radius: 10,
+                    color: ButtonColors.pink,
+                    onPressed: () {
+                      context.push("${RouteValue.home.path}/${RouteValue.add.path}");
+                    },
+                    widget: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                      child: AppIcon(
+                        asset: IconProvider.add.buildImageUrl(),
+                        width: 29,
+                        height: 29,
+                      ),
+                    ),
+                  ),
                 ),
               )
             ],
           );
         }
-        // Если состояние не загружено, показываем индикатор загрузки
         return const Center(
           child: CircularProgressIndicator(),
         );
@@ -650,30 +650,51 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Виджет для выбора места хранения
-  AppButton storageWidget(String storage, SweetCategory category, String id) {
-    final bool isSelected = storageFilter.containsValue(storage);
+  /// Универсальный виджет фильтра для места хранения.
+  /// Если categoryId передан и _groupByCategory = true, фильтруем для этой категории.
+  /// Если categoryId не передан или _groupByCategory = false, используем глобальный фильтр.
+  Widget buildStorageWidget({required String storageName, String? categoryId, required String locationId}) {
+    bool isSelected;
+    if (_groupByCategory && categoryId != null) {
+      final locations = storageFilter[categoryId] ?? [];
+      isSelected = locations.contains(locationId);
+    } else {
+      // Глобальный фильтр
+      isSelected = globalLocationFilter.contains(locationId);
+    }
+
     return AppButton(
       color: isSelected ? ButtonColors.purple : ButtonColors.grey,
       onPressed: () {
         setState(() {
-          if (storageFilter[category] == null) {
-            storageFilter[category ?? SweetCategory(id: id, name: storage)] = [
-              id,
-            ];
-          } else if (storageFilter[category]!.contains(id)) {
-            storageFilter[category]!.remove(id);
+          if (_groupByCategory && categoryId != null) {
+            final currentList = storageFilter[categoryId] ?? [];
+            if (currentList.contains(locationId)) {
+              currentList.remove(locationId);
+            } else {
+              currentList.add(locationId);
+            }
+            if (currentList.isEmpty) {
+              storageFilter.remove(categoryId);
+            } else {
+              storageFilter[categoryId] = currentList;
+            }
           } else {
-            storageFilter[category]!.add(id);
+            // Глобальный фильтр
+            if (globalLocationFilter.contains(locationId)) {
+              globalLocationFilter.remove(locationId);
+            } else {
+              globalLocationFilter.add(locationId);
+            }
           }
         });
       },
       widget: Padding(
         padding: const EdgeInsets.only(left: 24, right: 24, bottom: 6, top: 6),
         child: Text(
-          storage,
+          storageName,
           style: TextStyle(
-            color: isSelected ? Colors.white : Color(0xFF790AA3),
+            color: isSelected ? Colors.white : const Color(0xFF790AA3),
             fontSize: 16,
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w400,
@@ -686,9 +707,9 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 String formatDate(DateTime date) {
-  String month = date.month.toString().padLeft(2, '0');
-  String day = date.day.toString().padLeft(2, '0');
-  String year = date.year.toString();
+  final month = date.month.toString().padLeft(2, '0');
+  final day = date.day.toString().padLeft(2, '0');
+  final year = date.year.toString();
   return '$month.$day.$year';
 }
 
@@ -703,7 +724,7 @@ class AppDivider extends StatelessWidget {
         width: getWidth(1, context) - 16,
         height: 2,
         decoration: ShapeDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment(1.00, 0.00),
             end: Alignment(-1, 0),
             colors: [Color(0x00881CB8), Color(0xFF881CB8), Color(0x00881CB8)],

@@ -338,10 +338,10 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                       onChanged: (val) {
                         setState(() {
                           if (!selectedDates.contains(
-                              selectedDates.indexOf(weekDays.indexOf(val!)))) {
-                            selectedDates.add(weekDays.indexOf(val!));
+                              selectedDates.indexOf(weekDays.indexOf(val!))+1)) {
+                            selectedDates.add(weekDays.indexOf(val!)+1);
                           } else {
-                            selectedDates.remove(weekDays.indexOf(val!));
+                            selectedDates.remove(weekDays.indexOf(val!)+1);
                           }
                         });
                       }),
