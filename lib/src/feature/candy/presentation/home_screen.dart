@@ -42,290 +42,292 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<String> globalLocationFilter = [];
 
   Widget _buildContent(List<Candy> candies) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Wrap(
-        spacing: 15,
-        runSpacing: 15,
-        children: candies.map((candy) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 9, right: 6),
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 9, right: 6),
-                  child: AppButton(
-                    color: ButtonColors.darkPurple,
-                    radius: 11,
-                    widget: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 4, right: 4, bottom: 4),
-                      child: Ink(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(11),
-                          gradient: const LinearGradient(
-                            begin: Alignment(0.00, -1.00),
-                            end: Alignment(0, 1),
-                            colors: [Colors.white, Color(0xFFCDDAE8)],
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Wrap(
+          spacing: 15,
+          runSpacing: 15,
+          children: candies.map((candy) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 9, right: 6),
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 9, right: 6),
+                    child: AppButton(
+                      color: ButtonColors.darkPurple,
+                      radius: 11,
+                      widget: Padding(
+                        padding:
+                            const EdgeInsets.only(left: 4, right: 4, bottom: 4),
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(11),
+                            gradient: const LinearGradient(
+                              begin: Alignment(0.00, -1.00),
+                              end: Alignment(0, 1),
+                              colors: [Colors.white, Color(0xFFCDDAE8)],
+                            ),
                           ),
-                        ),
-                        child: _showFullDetails
-                            ? SizedBox(
-                                width: 155,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(top: 17),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.topLeft,
-                                        child: ClipRRect(
-                                          borderRadius: const BorderRadius.only(
-                                            topRight: Radius.circular(50.50),
-                                            bottomRight: Radius.circular(50.50),
-                                          ),
-                                          child: AppIcon(
-                                            width: 128,
-                                            height: 72,
-                                            fit: BoxFit.cover,
-                                            asset: candy.imageUrl ??
-                                                IconProvider.buildImageByName(
-                                                  candy.type.name,
-                                                ),
-                                          ),
-                                        ),
-                                      ),
-                                      const Gap(5),
-                                      SizedBox(
-                                        width: 139,
-                                        child: Center(
-                                          child: Text(
-                                            candy.name,
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 18,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w500,
-                                              height: 0,
+                          child: _showFullDetails
+                              ? SizedBox(
+                                  width: 155,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 17),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Align(
+                                          alignment: Alignment.topLeft,
+                                          child: ClipRRect(
+                                            borderRadius: const BorderRadius.only(
+                                              topRight: Radius.circular(50.50),
+                                              bottomRight: Radius.circular(50.50),
                                             ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ),
-                                      const Gap(5),
-                                      SizedBox(
-                                        width: 139,
-                                        child: Center(
-                                          child: Text(
-                                            'location: ${candy.location.name}',
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 14,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300,
-                                              height: 0,
+                                            child: AppIcon(
+                                              width: 128,
+                                              height: 72,
+                                              fit: BoxFit.cover,
+                                              asset: candy.imageUrl ??
+                                                  IconProvider.buildImageByName(
+                                                    candy.type.name,
+                                                  ),
                                             ),
-                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
-                                      ),
-                                      const Gap(5),
-                                      SizedBox(
-                                        width: 139,
-                                        child: Center(
-                                          child: Text(
-                                            candy.category.name,
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 14,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300,
-                                              height: 0,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ),
-                                      const Gap(5),
-                                      SizedBox(
-                                        width: 139,
-                                        child: Center(
-                                          child: Text(
-                                            candy.expirationDate != null
-                                                ? formatDate(
-                                                    candy.expirationDate!)
-                                                : 'No expiration',
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 14,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300,
-                                              height: 0,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ),
-                                      const Gap(5),
-                                      SizedBox(
-                                        width: 139,
-                                        child: Center(
-                                          child: Text(
-                                            candy.type.name,
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 14,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300,
-                                              height: 0,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ),
-                                      const Gap(5),
-                                      SizedBox(
-                                        width: 139,
-                                        child: Center(
-                                          child: Text(
-                                            'count: ${candy.quantity}',
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 14,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300,
-                                              height: 0,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ),
-                                      const Gap(7),
-                                      Row(
-                                        children: [
-                                          const Spacer(),
-                                          AppButton(
-                                            onPressed: () =>
-                                                showConsumeCandyDialog(
-                                                    candy: candy,
-                                                    context: context),
-                                            color: ButtonColors.pink,
-                                            widget: const Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 17,
-                                                vertical: 2,
+                                        const Gap(5),
+                                        SizedBox(
+                                          width: 139,
+                                          child: Center(
+                                            child: Text(
+                                              candy.name,
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 18,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w500,
+                                                height: 0,
                                               ),
-                                              child: Text(
-                                                'consume',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 11,
-                                                  fontFamily: 'Poppins',
-                                                  fontWeight: FontWeight.w400,
-                                                  height: 0,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        const Gap(5),
+                                        SizedBox(
+                                          width: 139,
+                                          child: Center(
+                                            child: Text(
+                                              'location: ${candy.location.name}',
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w300,
+                                                height: 0,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        const Gap(5),
+                                        SizedBox(
+                                          width: 139,
+                                          child: Center(
+                                            child: Text(
+                                              candy.category.name,
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w300,
+                                                height: 0,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        const Gap(5),
+                                        SizedBox(
+                                          width: 139,
+                                          child: Center(
+                                            child: Text(
+                                              candy.expirationDate != null
+                                                  ? formatDate(
+                                                      candy.expirationDate!)
+                                                  : 'No expiration',
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w300,
+                                                height: 0,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        const Gap(5),
+                                        SizedBox(
+                                          width: 139,
+                                          child: Center(
+                                            child: Text(
+                                              candy.type.name,
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w300,
+                                                height: 0,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        const Gap(5),
+                                        SizedBox(
+                                          width: 139,
+                                          child: Center(
+                                            child: Text(
+                                              'count: ${candy.quantity}',
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w300,
+                                                height: 0,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        const Gap(7),
+                                        Row(
+                                          children: [
+                                            const Spacer(),
+                                            AppButton(
+                                              onPressed: () =>
+                                                  showConsumeCandyDialog(
+                                                      candy: candy,
+                                                      context: context),
+                                              color: ButtonColors.pink,
+                                              widget: const Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 17,
+                                                  vertical: 2,
+                                                ),
+                                                child: Text(
+                                                  'consume',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 11,
+                                                    fontFamily: 'Poppins',
+                                                    fontWeight: FontWeight.w400,
+                                                    height: 0,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                          const Spacer(),
-                                          IconButton(
-                                            padding: EdgeInsets.zero,
-                                            onPressed: () {
-                                              context
-                                                  .read<CandyBloc>()
-                                                  .add(RemoveCandy(candy));
-                                            },
-                                            icon: AppIcon(
-                                              asset: IconProvider.delete
-                                                  .buildImageUrl(),
-                                              width: 20,
-                                              fit: BoxFit.fitWidth,
-                                              height: 24,
+                                            const Spacer(),
+                                            IconButton(
+                                              padding: EdgeInsets.zero,
+                                              onPressed: () {
+                                                context
+                                                    .read<CandyBloc>()
+                                                    .add(RemoveCandy(candy));
+                                              },
+                                              icon: AppIcon(
+                                                asset: IconProvider.delete
+                                                    .buildImageUrl(),
+                                                width: 20,
+                                                fit: BoxFit.fitWidth,
+                                                height: 24,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              )
-                            : CupertinoButton(
-                                onPressed: () {
-                                  showCandyDialog(
-                                      context: context, candy: candy);
-                                },
-                                padding: EdgeInsets.zero,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(4),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: AppIcon(
-                                      width: 86,
-                                      height: 86,
-                                      fit: BoxFit.cover,
-                                      asset: candy.imageUrl ??
-                                          IconProvider.buildImageByName(
-                                            candy.type.name,
-                                          ),
+                                )
+                              : CupertinoButton(
+                                  onPressed: () {
+                                    showCandyDialog(
+                                        context: context, candy: candy);
+                                  },
+                                  padding: EdgeInsets.zero,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: AppIcon(
+                                        width: 86,
+                                        height: 86,
+                                        fit: BoxFit.cover,
+                                        asset: candy.imageUrl ??
+                                            IconProvider.buildImageByName(
+                                              candy.type.name,
+                                            ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                if (candy.expirationDate != null &&
-                    DateTime.now().isAfter(candy.expirationDate!))
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      width: 67,
-                      height: 22,
-                      decoration: ShapeDecoration(
-                        color: const Color(0xFFBB0000),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(11),
+                  if (candy.expirationDate != null &&
+                      DateTime.now().isAfter(candy.expirationDate!))
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        width: 67,
+                        height: 22,
+                        decoration: ShapeDecoration(
+                          color: const Color(0xFFBB0000),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(11),
+                          ),
                         ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'expired',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w400,
-                            height: 0,
+                        child: const Center(
+                          child: Text(
+                            'expired',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w400,
+                              height: 0,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                if (_showFullDetails)
-                  Positioned(
-                    top: 15,
-                    left: 5,
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        context.push(
-                            "${RouteValue.home.path}/${RouteValue.add.path}",
-                            extra: candy);
-                      },
-                      icon: AppIcon(
-                        asset: IconProvider.edit.buildImageUrl(),
-                        width: 21,
-                        fit: BoxFit.fitWidth,
-                        height: 21,
+                  if (_showFullDetails)
+                    Positioned(
+                      top: 15,
+                      left: 5,
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          context.push(
+                              "${RouteValue.home.path}/${RouteValue.add.path}",
+                              extra: candy);
+                        },
+                        icon: AppIcon(
+                          asset: IconProvider.edit.buildImageUrl(),
+                          width: 21,
+                          fit: BoxFit.fitWidth,
+                          height: 21,
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-          );
-        }).toList(),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
