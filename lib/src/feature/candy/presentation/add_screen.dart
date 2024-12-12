@@ -426,7 +426,7 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
           final Set<SweetCategory> categoriesHint = state.candies
               .map((e) => e.category)
               .toSet()
-            ..addAll(state.historyList.map((e) => e.category).toSet())
+ 
             ..addAll(state.shoppingList.map((e) => e.candy.category).toSet());
 
           return SingleChildScrollView(

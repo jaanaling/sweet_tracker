@@ -184,7 +184,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
           image: event.candy.imageUrl,
           id: const Uuid().v4(),
           date: DateTime.now(),
-          category: event.candy.category,
+          category: event.candy.type,
           sweetName: event.candy.name,
           usedQuantity: event.candy.quantity,
         );
@@ -320,7 +320,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
           image: updatedCandy.imageUrl,
           id: const Uuid().v4(),
           date: DateTime.now(),
-          category: candy.category,
+          category: candy.type,
           sweetName: candy.name,
           usedQuantity: countToUse,
         );

@@ -1,13 +1,14 @@
 import 'dart:convert';
 
 import 'package:sweet_planner/src/feature/candy/model/sweet_category.dart';
+import 'package:sweet_planner/src/feature/candy/model/sweet_type.dart';
 
 class UsageHistoryRecord {
   final String id;
   final DateTime date;
   final String sweetName;
   final String? image;
-  final SweetCategory category;
+  final SweetType category;
   final int usedQuantity;
 
   UsageHistoryRecord({
@@ -24,7 +25,7 @@ class UsageHistoryRecord {
     DateTime? date,
     String? sweetName,
     String? image,
-    SweetCategory? category,
+    SweetType? category,
     int? usedQuantity,
   }) {
     return UsageHistoryRecord(
@@ -43,7 +44,7 @@ class UsageHistoryRecord {
       'date': date.millisecondsSinceEpoch,
       'image': image,
       'sweetName': sweetName,
-      'category': category.toMap(),
+      'category': category.name,
       'usedQuantity': usedQuantity,
     };
   }
@@ -52,7 +53,7 @@ class UsageHistoryRecord {
     return UsageHistoryRecord(
       id: map['id'] as String,
       image: map['image'] != null ? map['image'] as String : null,
-      category: SweetCategory.fromMap(map['category'] as Map<String, dynamic>),
+      category: SweetType.values.firstWhere((e) => e.name == map['category']),
       date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
       sweetName: map['sweetName'] as String,
       usedQuantity: map['usedQuantity'] as int,
