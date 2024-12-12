@@ -20,7 +20,7 @@ class NotificationsScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18),
       child: AppButton(
-        radius: 11,
+          radius: 11,
           color: ButtonColors.white,
           widget: Stack(
             alignment: Alignment.center,
@@ -30,49 +30,54 @@ class NotificationsScreen extends StatelessWidget {
                 height: 82,
                 child: Padding(
                   padding: const EdgeInsets.all(5),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppButton(
-                          radius: 6,
-                          color: ButtonColors.white,
-                          widget: SizedBox(
-                            width: 51,
-                            height: 43,
-                          )),
-                      Gap(3),
-                      Text(
-                        notification.sweetName,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 15,
-                          fontFamily: 'Poppins',
-                          height: 0,
-                        ),
-                      ),
-                    ],
-                  ),
+                  child: notification.sweetName.isNotEmpty
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AppButton(
+                                radius: 6,
+                                color: ButtonColors.white,
+                                widget: SizedBox(
+                                  width: 51,
+                                  height: 43,
+                                )),
+                            Gap(3),
+                            Text(
+                              notification.sweetName,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 15,
+                                fontFamily: 'Poppins',
+                                height: 0,
+                              ),
+                            ),
+                          ],
+                        )
+                      : SizedBox.shrink(),
                 ),
               ),
-              SizedBox(
-                width: getWidth(1, context) - 142,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    notification.message,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 22,
-                      fontFamily: 'Poppins',
+              Positioned(
+                left: 61,
+                child: SizedBox(
+                  width: getWidth(1, context) - 142,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      notification.message,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 22,
+                        fontFamily: 'Poppins',
+                      ),
                     ),
                   ),
                 ),
               ),
               Positioned(
-                top: 5,
-                right: 6,
+                top: 0,
+                right: 0,
                 child: IconButton(
                     padding: EdgeInsets.zero,
                     onPressed: () {
@@ -138,16 +143,39 @@ class NotificationsScreen extends StatelessWidget {
                     ],
                   ),
                   Gap(16),
-                  ListView.separated(
-                    itemCount: state.notifications.length,
-                    shrinkWrap: true,
-                    separatorBuilder: (context, index) => Gap(15),
-                    physics: NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return _buildNotificationItem(
-                          context, state.notifications[index]);
-                    },
-                  ),
+                  state.notifications.isNotEmpty
+                      ? ListView.separated(
+                          itemCount: state.notifications.length,
+                          shrinkWrap: true,
+                          separatorBuilder: (context, index) => Gap(15),
+                          physics: NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            return _buildNotificationItem(
+                                context, state.notifications[index]);
+                          },
+                        )
+                      : Center(
+                          child: Padding(
+                            padding:
+                                EdgeInsets.only(top: getHeight(0.3, context)),
+                            child: Text(
+                              'No notifications here!',
+                              style: TextStyle(
+                                fontSize: 27,
+                                fontFamily: 'Boleh',
+                                fontWeight: FontWeight.w400,
+                                height: 0,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(2, 2),
+                                    blurRadius: 4,
+                                    color: Colors.black.withOpacity(0.25),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                 ],
               ),
             ),

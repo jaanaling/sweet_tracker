@@ -31,7 +31,6 @@ class HistoryScreen extends StatelessWidget {
               ],
             ),
           ),
-          // Пример: кнопки подтверждения или удаления (по аналогии с макетом)
           Row(
             children: [
               IconButton(
