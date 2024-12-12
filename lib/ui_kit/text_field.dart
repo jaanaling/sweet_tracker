@@ -1,10 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:gap/gap.dart';
-import 'package:inner_glow/inner_glow.dart';
-import 'package:sweet_planner/src/core/utils/app_icon.dart';
-import 'package:sweet_planner/src/core/utils/icon_provider.dart';
+
 import 'package:sweet_planner/src/core/utils/size_utils.dart';
 import 'package:sweet_planner/ui_kit/app_button/app_button.dart';
 
@@ -39,90 +36,92 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppButton(
-      color: ButtonColors.white,
-      radius: borderRadius,
-      widget: SizedBox(
-        width: width,
-        height: height - 12,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 4),
-          child: hints != null
-              ? Autocomplete<String>(
-                  optionsBuilder: (TextEditingValue textEditingValue) {
-                  return hints!.where((suggestion) {
-                    return suggestion
-                        .toLowerCase()
-                        .contains(textEditingValue.text.toLowerCase());
-                  }).toList();
-                }, onSelected: (String selection) {
-                  controller.text = selection;
-                }, fieldViewBuilder:
-                      (context, controlller, focusNode, onEditingComplete) {
-                  return CupertinoTextField(
-                    padding: const EdgeInsets.only(
-                      left: 18,
-                    ),
-                    onTapOutside: (event) {
-                      onSave?.call(controller.text);
-                      FocusManager.instance.primaryFocus?.unfocus();
-                    },
-                    decoration: const BoxDecoration(color: Colors.transparent),
-                    onChanged: onChanged,
-                    onSubmitted: onSave,
-                    inputFormatters: inputFormatters,
-                    maxLines: maxLine,
-                    keyboardType: textInputType,
-                    controller: controller,
-                    placeholder: placeholder,
-                    textAlignVertical: TextAlignVertical.center,
-                    placeholderStyle: TextStyle(
-                      color: Color(0x82790AA3),
-                      fontSize: textSize,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w400,
-                    ),
+    return Autocomplete<String>(
+        optionsBuilder: (TextEditingValue textEditingValue) {
+      return hints!.where((suggestion) {
+        return suggestion
+            .toLowerCase()
+            .contains(textEditingValue.text.toLowerCase());
+      }).toList();
+    }, onSelected: (String selection) {
+      controller.text = selection;
+    }, optionsViewBuilder: (context, onSelected, options) {
+      return Align(
+        alignment: Alignment.topLeft,
+        child: Material(
+          child: SizedBox(
+            width: getWidth(1, context) - 32,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: options.length,
+              itemBuilder: (context, index) {
+                final option = options.elementAt(index);
+                return ListTile(
+                  title: Text(
+                    option,
                     style: TextStyle(
-                      color: Color(0xFF790AA3),
-                      fontSize: textSize,
+                      color: Color.fromARGB(255, 102, 8, 136),
+                      fontSize: 14,
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w500,
                     ),
-                  );
-                })
-              : CupertinoTextField(
-                  padding: const EdgeInsets.only(
-                    left: 18,
                   ),
-                  onTapOutside: (event) {
-                    onSave?.call(controller.text);
-                    FocusManager.instance.primaryFocus?.unfocus();
+                  onTap: () {
+                    onSelected(option);
                   },
-                  decoration: const BoxDecoration(color: Colors.transparent),
-                  onChanged: onChanged,
-                  onSubmitted: onSave,
-                  inputFormatters: inputFormatters,
-                  maxLines: maxLine,
-                  keyboardType: textInputType,
-                  controller: controller,
-                  placeholder: placeholder,
-                  textAlignVertical: TextAlignVertical.center,
-                  placeholderStyle: TextStyle(
+                );
+              },
+            ),
+          ),
+        ),
+      );
+    }, fieldViewBuilder: (context, controlller, focusNode, onEditingComplete) {
+      if (controller.text.isNotEmpty && controlller.text.isEmpty) {
+        controlller.text = controller.text;
+      }
+
+      return AppButton(
+        color: ButtonColors.white,
+        radius: borderRadius,
+        widget: SizedBox(
+          width: width,
+          height: height - 12,
+          child: Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: TextField(
+                controller: controlller,
+                focusNode: focusNode,
+                onTapOutside: (event) {
+                  onSave?.call(controller.text);
+                  FocusManager.instance.primaryFocus?.unfocus();
+                },
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(
                     color: Color(0x82790AA3),
                     fontSize: textSize,
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.w400,
                   ),
-                  style: TextStyle(
-                    color: Color(0xFF790AA3),
-                    fontSize: textSize,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
+                  hintText: placeholder,
+                  contentPadding: const EdgeInsets.only(left: 18, bottom: 8),
                 ),
+                onChanged: onChanged,
+                onSubmitted: onSave,
+                inputFormatters: inputFormatters,
+                maxLines: maxLine,
+                keyboardType: textInputType,
+                textAlignVertical: TextAlignVertical.center,
+                style: TextStyle(
+                  color: Color(0xFF790AA3),
+                  fontSize: textSize,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w500,
+                ),
+              )),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 

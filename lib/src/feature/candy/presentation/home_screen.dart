@@ -680,7 +680,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: () {
                       showTemplateSelectionDialog(
                         context: context,
-                        templates: state.candies,
+                        templates: state.candies.where((test)=>test.isTemplate).toList(),
                       );
                     },
                     widget: Padding(

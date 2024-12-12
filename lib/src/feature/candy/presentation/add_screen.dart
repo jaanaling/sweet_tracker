@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -10,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sweet_planner/src/core/utils/app_icon.dart';
 import 'package:sweet_planner/src/core/utils/icon_provider.dart';
+import 'package:sweet_planner/src/core/utils/log.dart';
 import 'package:sweet_planner/src/core/utils/size_utils.dart';
 import 'package:sweet_planner/src/feature/candy/bloc/candy_bloc.dart';
 import 'package:sweet_planner/src/feature/candy/model/candy.dart';
@@ -54,7 +56,7 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
   String? selectedLocation;
   String? selectedCategory;
 
-  DateTime selectedExpirationDate = DateTime.now();
+  DateTime? selectedExpirationDate;
 
   List<int> selectedDates = [];
 
@@ -108,8 +110,6 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
               }).toList();
             },
             onSelected: (String selection) {
-              // Когда пользователь выбирает подсказку
-              print('Выбрано: $selection');
               controller.text = selection;
             },
             fieldViewBuilder:
@@ -255,6 +255,131 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
     );
   }
 
+  void _showPicker(BuildContext context, String label, List<String> options,
+      String initial, Function(String?) onChanged) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoActionSheet(
+          title: Text(label),
+          message: SizedBox(
+            height:
+                200, // Set height to allow for the date picker to be visible
+            child: CupertinoPicker(
+              itemExtent: 30,
+              children: options.map((String value) {
+                return Text(value);
+              }).toList(),
+              onSelectedItemChanged: (index) {
+                onChanged(options[index]);
+              },
+            ),
+          ),
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () {
+              context.pop(); // Close the popup
+            },
+            child: const Text('Cancel'),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showSelectDaysDialog(BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return CupertinoPopupSurface(
+              // Используем CupertinoPopupSurface здесь
+              child: Material(
+                // Material для корректной работы виджетов
+                color: Colors.transparent, // Прозрачный фон Material
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    // Дополнительные стили для контейнера
+                    color: CupertinoColors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('Select days',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
+                      SizedBox(
+                        height: getHeight(0.5, context),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: weekDays.length,
+                          itemBuilder: (context, index) {
+                            // ... (Ваш код для пунктов выбора)
+                            return CupertinoButton(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              onPressed: () {
+                                setState(() {
+                                  _toggleDaySelection(index);
+                                });
+                              },
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    weekDays[index],
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: selectedDates.contains(index + 1)
+                                          ? Color.fromARGB(255, 175, 6, 147)
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                  Checkbox(
+                                    checkColor: Colors.white,
+                                    activeColor:
+                                        Color.fromARGB(255, 175, 6, 147),
+                                    value: selectedDates.contains(index + 1),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _toggleDaySelection(index);
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      CupertinoButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _toggleDaySelection(int index) {
+    if (selectedDates.contains(index + 1)) {
+      selectedDates.remove(index + 1);
+    } else {
+      selectedDates.add(index + 1);
+    }
+  }
+
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
 
@@ -349,6 +474,12 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             AppTextField(
+                              onChanged: (p0) => setState(() {
+                                _nameController.text = p0;
+                              }),
+                              onSave: (p0) => setState(() {
+                                _nameController.text = p0;
+                              }),
                               height: 52,
                               width: getWidth(1, context) - 121.93 - 58,
                               controller: _nameController,
@@ -357,6 +488,16 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                             ),
                             const Gap(14),
                             AppButton(
+                              onPressed: () => _showPicker(
+                                  context,
+                                  'category',
+                                  SweetType.values.map((e) => e.name).toList(),
+                                  selectedCategory ?? '', (val) {
+                                setState(() {
+                                  selectedCategory = val;
+                                });
+                              }),
+                              radius: 11,
                               color: ButtonColors.grey,
                               widget: Padding(
                                 padding: const EdgeInsets.only(
@@ -364,12 +505,12 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                                   bottom: 8,
                                 ),
                                 child: SizedBox(
-                                  width: getWidth(0.372, context),
-                                  child: const Row(
+                                  width: getWidth(1, context) - 121.93 - 58,
+                                  child: Row(
                                     children: [
                                       Spacer(),
                                       Text(
-                                        'category',
+                                        selectedCategory ?? 'category',
                                         style: TextStyle(
                                           color: Color(0xFF790AA3),
                                           fontSize: 16,
@@ -399,6 +540,17 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                       children: [
                         const Gap(16),
                         AppButton(
+                          onPressed: () => _showPicker(
+                              context,
+                              'location',
+                              StorageLocation.values
+                                  .map((e) => e.name)
+                                  .toList(),
+                              selectedLocation ?? '', (val) {
+                            setState(() {
+                              selectedLocation = val;
+                            });
+                          }),
                           color: ButtonColors.grey,
                           widget: Padding(
                             padding: const EdgeInsets.only(
@@ -406,12 +558,13 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                               bottom: 8,
                             ),
                             child: SizedBox(
+                              height: 35,
                               width: getWidth(1, context) / 2 - 20.5,
-                              child: const Row(
+                              child: Row(
                                 children: [
                                   Spacer(),
                                   Text(
-                                    'storage\nlocation',
+                                    selectedLocation ?? 'storage\nlocation',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: Color(0xFF790AA3),
@@ -444,11 +597,14 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                             ),
                             child: SizedBox(
                               width: getWidth(1, context) / 2 - 20.5,
-                              child: const Row(
+                              height: 35,
+                              child: Row(
                                 children: [
                                   Spacer(),
                                   Text(
-                                    'expiration\ndate',
+                                    selectedExpirationDate == null
+                                        ? 'expiration\ndate'
+                                        : "${formatDate(selectedExpirationDate!)}",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: Color(0xFF790AA3),
@@ -475,60 +631,38 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                     ),
                     const Gap(13),
                     AppTextField(
-                        height: 52,
-                        borderRadius: 11,
-                        width: getWidth(1, context) - 32,
-                        controller: _usageCategoryController,
-                        placeholder: 'Usage category',
-                        hints: categoriesHint.map((e) => e.name).toList()),
+                      onChanged: (p0) => setState(() {
+                        _usageCategoryController.text = p0;
+                      }),
+                      onSave: (p0) => setState(() {
+                        _usageCategoryController.text = p0;
+                      }),
+                      height: 52,
+                      borderRadius: 11,
+                      width: getWidth(1, context) - 32,
+                      controller: _usageCategoryController,
+                      placeholder: 'Usage category',
+                      hints: categoriesHint.map((e) => e.name).toList(),
+                    ),
                     const Gap(13),
+                    AppTextField(
+                      onChanged: (p0) => setState(() {
+                        quantityController.text = p0;
+                      }),
+                      onSave: (p0) => setState(() {
+                        quantityController.text = p0;
+                      }),
+                      height: 52,
+                      borderRadius: 11,
+                      width: getWidth(1, context) - 32,
+                      controller: quantityController,
+                      placeholder: 'Quantity',
+                      textInputType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                    ),
                     const SizedBox(height: 16),
-
-                    _buildTextField(
-                        label: 'Name',
-                        hints: candiesHint.toList(),
-                        controller: _nameController),
-                    const SizedBox(height: 16),
-
-                    _buildTextField(
-                        label: 'Quantity',
-                        hints: [],
-                        controller: quantityController),
-                    const SizedBox(height: 16),
-                    _buildDropdown(
-                        label: 'Category',
-                        options: SweetType.values.map((e) => e.name).toList(),
-                        initial: selectedCategory,
-                        onChanged: (val) {
-                          setState(() {
-                            selectedCategory = val;
-                          });
-                        }),
-                    const SizedBox(height: 16),
-
-                    _buildDropdown(
-                        label: 'Storage location',
-                        options:
-                            StorageLocation.values.map((e) => e.name).toList(),
-                        initial: selectedLocation,
-                        onChanged: (val) {
-                          setState(() {
-                            selectedLocation = val;
-                          });
-                        }),
-                    const SizedBox(height: 16),
-
-                    ElevatedButton(
-                        onPressed: () => _showDatePicker(context),
-                        child: const Text('Select expiration date')),
-                    const SizedBox(height: 16),
-
-                    _buildTextField(
-                        label: 'Usage category',
-                        hints: categoriesHint.map((e) => e.name).toList(),
-                        controller: _usageCategoryController),
-                    const SizedBox(height: 16),
-
                     _buildSwitch(
                         label: 'Recurring candy',
                         initial: recurringCandy,
@@ -552,7 +686,7 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                     AppDivider(),
                     Gap(10),
                     _buildSwitch(
-                        label: 'Auto-add to cart',
+                        label: 'Add to cart',
                         initial: addToCart,
                         controller: _controller02,
                         onChanged: (val) {
@@ -560,84 +694,66 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                             addToCart = val as bool;
                           });
                         }),
-
                     const SizedBox(height: 16),
-                    // Выбор дат (просто кнопка)
-                    _buildDropdown(
-                        label: 'periodicity Days',
-                        options: weekDays,
-                        initial: weekDays[0],
-                        onChanged: (val) {
-                          setState(() {
-                            if (!selectedDates.contains(
-                                selectedDates.indexOf(weekDays.indexOf(val!)) +
-                                    1)) {
-                              selectedDates.add(weekDays.indexOf(val!) + 1);
-                            } else {
-                              selectedDates.remove(weekDays.indexOf(val!) + 1);
-                            }
-                          });
-                        }),
-                    const SizedBox(height: 16),
-
-                    Row(
-                      children: [
-                        Gap(16),
-                        AppButton(
-                          color: ButtonColors.grey,
-                          onPressed: () => _showDatePicker(context),
-                          widget: Padding(
-                            padding: const EdgeInsets.only(
-                              top: 4,
-                              bottom: 8,
-                            ),
-                            child: SizedBox(
-                              width: getWidth(0.372, context),
-                              child: const Row(
-                                children: [
-                                  Spacer(),
-                                  Text(
-                                    'periodicity\ndays',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Color(0xFF790AA3),
-                                      fontSize: 16,
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w400,
-                                      height: 1.07,
+                    if (recurringCandy)
+                      Row(
+                        children: [
+                          Gap(16),
+                          AppButton(
+                            color: ButtonColors.grey,
+                            onPressed: () => _showSelectDaysDialog(context),
+                            widget: Padding(
+                              padding: const EdgeInsets.only(
+                                top: 4,
+                                bottom: 8,
+                              ),
+                              child: SizedBox(
+                                width: getWidth(0.372, context),
+                                child: const Row(
+                                  children: [
+                                    Spacer(),
+                                    Text(
+                                      'periodicity\ndays',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Color(0xFF790AA3),
+                                        fontSize: 16,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w400,
+                                        height: 1.07,
+                                      ),
                                     ),
-                                  ),
-                                  Spacer(),
-                                  Icon(
-                                    Icons.keyboard_arrow_down_outlined,
-                                    color: Color(0x91790AA3),
-                                  ),
-                                  Gap(10)
-                                ],
+                                    Spacer(),
+                                    Icon(
+                                      Icons.keyboard_arrow_down_outlined,
+                                      color: Color(0x91790AA3),
+                                    ),
+                                    Gap(10)
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        Gap(11),
-                        AppTextField(
-                          height: 52,
-                          width: getWidth(1, context) -
-                              getWidth(0.372, context) -
-                              44,
-                          controller: selectedPeriodicityCount,
-                          textInputType: TextInputType.number,
-                          placeholder: 'candy count',
-                          hints: candiesHint.toList(),
-                        ),
-                        Gap(17)
-                      ],
-                    ),
-                    _buildTextField(
-                        label: 'periodicity count',
-                        controller: selectedPeriodicityCount,
-                        hints: []),
-
-                    const SizedBox(height: 16),
+                          Gap(11),
+                          AppTextField(
+                            onChanged: (p0) => setState(() {
+                              selectedPeriodicityCount.text = p0;
+                            }),
+                            onSave: (p0) => setState(() {
+                              selectedPeriodicityCount.text = p0;
+                            }),
+                            height: 52,
+                            width: getWidth(1, context) -
+                                getWidth(0.372, context) -
+                                44,
+                            controller: selectedPeriodicityCount,
+                            textInputType: TextInputType.number,
+                            placeholder: 'candy count',
+                          ),
+                          Gap(17)
+                        ],
+                      ),
+                    Gap(16),
                     AppButton(
                       radius: 11,
                       color: ButtonColors.pink,
