@@ -173,13 +173,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
       _allCandies.add(event.candy);
 
       // Обновляем состояние напрямую
-      emit(CandyLoaded(
-        candies: _allCandies,
-        shoppingList: _shoppingList,
-        pendingPeriodicUsage: _pendingPeriodicUsage,
-        historyList: _historyList,
-        notifications: _notifications,
-      ));
+      add(LoadCandy());
     } catch (e) {
       logger.e(e);
       emit(const CandyError('Failed to save candy'));
@@ -194,13 +188,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
       await _candyRepository.remove(event.candy);
       _allCandies.removeWhere((c) => c.id == event.candy.id);
 
-      emit(CandyLoaded(
-        candies: _allCandies,
-        shoppingList: _shoppingList,
-        pendingPeriodicUsage: _pendingPeriodicUsage,
-        historyList: _historyList,
-        notifications: _notifications,
-      ));
+      add(LoadCandy());
     } catch (e) {
       logger.e(e);
       emit(const CandyError('Failed to remove candy'));
@@ -350,13 +338,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
         }
 
         // Обновляем состояние напрямую, без LoadCandy()
-        emit(CandyLoaded(
-          candies: _allCandies,
-          shoppingList: _shoppingList,
-          pendingPeriodicUsage: _pendingPeriodicUsage,
-          historyList: _historyList,
-          notifications: _notifications,
-        ));
+       add(LoadCandy());
       }
     }
   }
@@ -366,13 +348,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     Emitter<CandyState> emit,
   ) {
     _pendingPeriodicUsage.remove(event.candyId);
-    emit(CandyLoaded(
-      historyList: _historyList,
-      candies: _allCandies,
-      shoppingList: _shoppingList,
-      pendingPeriodicUsage: _pendingPeriodicUsage,
-      notifications: _notifications,
-    ));
+    add(LoadCandy());
   }
 
   Future<void> _onAddToShoppingList(
