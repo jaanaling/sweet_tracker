@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -248,18 +249,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                               )
-                            : Padding(
-                                padding: const EdgeInsets.all(4),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: AppIcon(
-                                    width: 86,
-                                    height: 86,
-                                    fit: BoxFit.cover,
-                                    asset: candy.imageUrl ??
-                                        IconProvider.buildImageByName(
-                                          candy.type.name,
-                                        ),
+                            : CupertinoButton(
+                                onPressed: () {
+                                  showCandyDialog(
+                                      context: context, candy: candy);
+                                },
+                                padding: EdgeInsets.zero,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: AppIcon(
+                                      width: 86,
+                                      height: 86,
+                                      fit: BoxFit.cover,
+                                      asset: candy.imageUrl ??
+                                          IconProvider.buildImageByName(
+                                            candy.type.name,
+                                          ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -518,24 +526,27 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                       ),
-                      if(state.candies.isEmpty)
+                      if (state.candies.isEmpty)
                         Center(
                           child: Padding(
-                            padding: EdgeInsets.only(top: getHeight(0.3, context)),
-                            child: Text('No candies here!',
-                                style: TextStyle(
-                                  fontSize: 27,
-                                  fontFamily: 'Boleh',
-                                  fontWeight: FontWeight.w400,
-                                  height: 0,
-                                  shadows: [
-                                    Shadow(
-                                      offset: Offset(2, 2),
-                                      blurRadius: 4,
-                                      color: Colors.black.withOpacity(0.25),
-                                    ),
-                                  ],
-                                ),),
+                            padding:
+                                EdgeInsets.only(top: getHeight(0.3, context)),
+                            child: Text(
+                              'No candies here!',
+                              style: TextStyle(
+                                fontSize: 27,
+                                fontFamily: 'Boleh',
+                                fontWeight: FontWeight.w400,
+                                height: 0,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(2, 2),
+                                    blurRadius: 4,
+                                    color: Colors.black.withOpacity(0.25),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       if (_groupByCategory && _groupByLocation)
@@ -707,7 +718,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: () {
                       showTemplateSelectionDialog(
                         context: context,
-                        templates: state.candies.where((test)=>test.isTemplate).toList(),
+                        templates: state.candies
+                            .where((test) => test.isTemplate)
+                            .toList(),
                       );
                     },
                     widget: Padding(
@@ -1072,6 +1085,58 @@ Future<int?> showAddFromTemplateDialog({
                   )));
             },
             child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> showCandyDialog(
+    {required BuildContext context, required Candy candy}) async {
+  await showDialog(
+    context: context,
+    builder: (context) {
+      return CupertinoAlertDialog(
+        title: Text('Candy: ${candy.name}'),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Category: ${candy.category.name}'),
+            Text('Location: ${candy.location.name}'),
+            Text('Quantity: ${candy.quantity}'),
+            Text(
+                'Expiration Date: ${candy.expirationDate != null ? formatDate(candy.expirationDate!)  : 'N/A'}'),
+          ],
+        ),
+        actions: <Widget>[
+          CupertinoDialogAction(
+            child: const Text('Consume'),
+            onPressed: () {
+              showConsumeCandyDialog(candy: candy, context: context);
+              context.pop();
+            },
+          ),
+          CupertinoDialogAction(
+            child: const Text('Edit'),
+            onPressed: () {
+              context.push("${RouteValue.home.path}/${RouteValue.add.path}",
+                  extra: candy);
+              context.pop();
+            },
+          ),
+          CupertinoDialogAction(
+            child: const Text('Delete'),
+            onPressed: () {
+              context.read<CandyBloc>().add(RemoveCandy(candy));
+              context.pop();
+            },
+          ),
+          CupertinoDialogAction(
+            child: const Text('Cancel'),
+            onPressed: () {
+              context.pop();
+            },
           ),
         ],
       );

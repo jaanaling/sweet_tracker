@@ -62,7 +62,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                     return pw.TableRow(
                       children: [
                         pw.Text(item.candy.name),
-                        pw.Text(item.candy.category.toString().split('.').last),
+                        pw.Text(item.candy.category.name),
                         pw.Text(item.candy.quantity.toString()),
                         pw.Text(item.candy.expirationDate?.toString() ?? 'N/A'),
                       ],
@@ -88,7 +88,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
     for (var item in shoppingItems) {
       shareText.writeln(
-          "${item.candy.name} - ${item.candy.category.toString().split('.').last}");
+          "${item.candy.name} - ${item.candy.category.name}");
       shareText.writeln("Quantity: ${item.candy.quantity}");
       shareText.writeln(
           "Expiration Date: ${item.candy.expirationDate?.toLocal().toString() ?? 'N/A'}");

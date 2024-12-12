@@ -88,141 +88,7 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
     }
   }
 
-  // Поле для ввода текста
-  Widget _buildTextField({
-    required String label,
-    required List<String> hints,
-    required TextEditingController controller,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Autocomplete<String>(
-            optionsBuilder: (TextEditingValue textEditingValue) {
-              // Фильтруем список подсказок на основе введенного текста
-              return hints.where((suggestion) {
-                return suggestion
-                    .toLowerCase()
-                    .contains(textEditingValue.text.toLowerCase());
-              }).toList();
-            },
-            onSelected: (String selection) {
-              controller.text = selection;
-            },
-            fieldViewBuilder:
-                (context, controlller, focusNode, onEditingComplete) {
-              return TextField(
-                onChanged: (value) => setState(() {
-                  controller.text = value;
-                }),
-                controller: controlller,
-                focusNode: focusNode,
-                decoration: const InputDecoration(
-                  hintText: 'Введите название конфеты',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.search),
-                ),
-                onEditingComplete: onEditingComplete,
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Выпадающий список (категория, место хранения)
-  Widget _buildDropdown(
-      {required String label,
-      required List<String> options,
-      String? initial,
-      required ValueChanged<String?>? onChanged}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label),
-        DropdownButton<String>(
-            isExpanded: true,
-            value: initial,
-            items: options.map((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-            onChanged: onChanged),
-      ],
-    );
-  }
-
-  // Переключатели (свитчи)
-  Widget _buildSwitch(
-      {required String label,
-      required bool initial,
-      required ValueNotifier<bool> controller,
-      required void Function(dynamic) onChanged}) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 22, right: 24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: Color(0xFF790AA3),
-              fontSize: 20,
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          AdvancedSwitch(
-            initialValue: initial,
-            controller: controller,
-            activeColor: const Color(0xFF29D58B),
-            inactiveColor: const Color(0xFFD52974),
-            activeChild: const Text(
-              'ON',
-              style: TextStyle(
-                color: Color(0xFF790AA3),
-                fontSize: 20,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w300,
-              ),
-            ),
-            inactiveChild: const Text('OFF',
-                style: TextStyle(
-                  color: Color(0xFF790AA3),
-                  fontSize: 20,
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w300,
-                )),
-            activeImage: const AssetImage(
-              'assets/images/on_background.png',
-            ),
-            inactiveImage: const AssetImage('assets/images/on_background.png'),
-            onChanged: onChanged,
-            borderRadius: const BorderRadius.all(Radius.circular(24.5)),
-            thumb: ValueListenableBuilder<bool>(
-              valueListenable: controller,
-              builder: (_, value, __) {
-                return Image.asset(
-                  value ? 'assets/images/on.png' : 'assets/images/off.png',
-                  width: 45,
-                  height: 45,
-                );
-              },
-            ),
-            width: 107,
-            height: 49,
-          ),
-        ],
-      ),
-    );
-  }
-
+  // Выбор даты
   void _showDatePicker(BuildContext context) {
     showCupertinoModalPopup(
       context: context,
@@ -230,23 +96,22 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
         return CupertinoActionSheet(
           title: const Text('Choose expiration date'),
           message: SizedBox(
-            height:
-                200, // Set height to allow for the date picker to be visible
+            height: 200,
             child: CupertinoDatePicker(
               initialDateTime: selectedExpirationDate,
               minimumDate: DateTime(2000),
               maximumDate: DateTime(2101),
               onDateTimeChanged: (DateTime newDate) {
                 setState(() {
-                  selectedExpirationDate = newDate; // Update the selected date
+                  selectedExpirationDate = newDate;
                 });
               },
-              mode: CupertinoDatePickerMode.date, // Use the date picker mode
+              mode: CupertinoDatePickerMode.date,
             ),
           ),
           cancelButton: CupertinoActionSheetAction(
             onPressed: () {
-              context.pop(); // Close the popup
+              context.pop();
             },
             child: const Text('Cancel'),
           ),
@@ -263,8 +128,7 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
         return CupertinoActionSheet(
           title: Text(label),
           message: SizedBox(
-            height:
-                200, // Set height to allow for the date picker to be visible
+            height: 200,
             child: CupertinoPicker(
               itemExtent: 30,
               children: options.map((String value) {
@@ -277,7 +141,7 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
           ),
           cancelButton: CupertinoActionSheetAction(
             onPressed: () {
-              context.pop(); // Close the popup
+              context.pop();
             },
             child: const Text('Cancel'),
           ),
@@ -293,14 +157,11 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return CupertinoPopupSurface(
-              // Используем CupertinoPopupSurface здесь
               child: Material(
-                // Material для корректной работы виджетов
-                color: Colors.transparent, // Прозрачный фон Material
+                color: Colors.transparent,
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    // Дополнительные стили для контейнера
                     color: CupertinoColors.white,
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -317,7 +178,6 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: weekDays.length,
                           itemBuilder: (context, index) {
-                            // ... (Ваш код для пунктов выбора)
                             return CupertinoButton(
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               onPressed: () {
@@ -382,21 +242,172 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
 
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
-
-    // Pick an image from the gallery
     final XFile? pickedFile =
         await _picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
-        selectedImage = pickedFile.path; // Store the picked image
+        selectedImage = pickedFile.path;
       });
     }
   }
 
+  Widget _buildSwitch(
+      {required String label,
+      required bool initial,
+      required ValueNotifier<bool> controller,
+      required void Function(dynamic) onChanged}) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 22, right: 24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Color(0xFF790AA3),
+              fontSize: 20,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          AdvancedSwitch(
+            initialValue: initial,
+            controller: controller,
+            activeColor: const Color(0xFF29D58B),
+            inactiveColor: const Color(0xFFD52974),
+            activeChild: const Text(
+              'ON',
+              style: TextStyle(
+                color: Color(0xFF790AA3),
+                fontSize: 20,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+            inactiveChild: const Text('OFF',
+                style: TextStyle(
+                  color: Color(0xFF790AA3),
+                  fontSize: 20,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w300,
+                )),
+            activeImage: const AssetImage(
+              'assets/images/on_background.png',
+            ),
+            inactiveImage: const AssetImage('assets/images/on_background.png'),
+            onChanged: onChanged,
+            borderRadius: const BorderRadius.all(Radius.circular(24.5)),
+            thumb: ValueListenableBuilder<bool>(
+              valueListenable: controller,
+              builder: (_, value, __) {
+                return Image.asset(
+                  value ? 'assets/images/on.png' : 'assets/images/off.png',
+                  width: 45,
+                  height: 45,
+                );
+              },
+            ),
+            width: 107,
+            height: 49,
+          ),
+        ],
+      ),
+    );
+  }
+
+  String formatDate(DateTime date) {
+    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+  }
+
+  void _saveCandy(Set<SweetCategory> categoriesHint, BuildContext context) {
+    // Валидация перед сохранением
+    final name = _nameController.text.trim();
+    final usageCategory = _usageCategoryController.text.trim();
+    final location = selectedLocation?.trim();
+    final category = selectedCategory?.trim();
+    final quantityText = quantityController.text.trim();
+
+    // Проверяем заполненность полей
+    if (name.isEmpty) {
+      _showError(context, 'Please enter a name.');
+      return;
+    }
+    if (usageCategory.isEmpty) {
+      _showError(context, 'Please enter a usage category.');
+      return;
+    }
+    if (location == null || location.isEmpty) {
+      _showError(context, 'Please select storage location.');
+      return;
+    }
+    if (category == null || category.isEmpty) {
+      _showError(context, 'Please select a category.');
+      return;
+    }
+    if (quantityText.isEmpty || int.tryParse(quantityText) == null) {
+      _showError(context, 'Please enter a valid quantity.');
+      return;
+    }
+
+    final candy = Candy(
+      id: widget.candy?.id ?? const Uuid().v4(),
+      name: name,
+      category: categoriesHint.firstWhere(
+        (e) => e.name == usageCategory,
+        orElse: () => SweetCategory(id: const Uuid().v4(), name: usageCategory),
+      ),
+      location: StorageLocation.values.firstWhere((e) => e.name == location,
+          orElse: () => StorageLocation.values.first),
+      quantity: int.parse(quantityText),
+      expirationDate: selectedExpirationDate,
+      isPermanent: recurringCandy,
+      isPeriodic: recurringCandy,
+      currentPeriodicIndex: 0,
+      periodicityDays:
+          selectedDates.isEmpty ? null : selectedDates.map((e) => e).toList(),
+      periodicityCount: int.tryParse(selectedPeriodicityCount.text) ?? 0,
+      type: SweetType.values.firstWhere((e) => e.name == category,
+          orElse: () => SweetType.values.first),
+      imageUrl: selectedImage,
+      isTemplate: saveTemplate,
+    );
+
+    if (addToCart) {
+      context
+          .read<CandyBloc>()
+          .add(AddToShoppingList(id: const Uuid().v4(), candy: candy));
+    } else if (widget.candy != null) {
+      context.read<CandyBloc>().add(UpdateCandy(candy));
+    } else {
+      context.read<CandyBloc>().add(SaveCandy(candy));
+    }
+
+    context.pop();
+  }
+
+  void _showError(BuildContext context, String message) {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Экран с формой добавления сладости
     return BlocBuilder<CandyBloc, CandyState>(
       builder: (context, state) {
         if (state is CandyError) {
@@ -459,10 +470,8 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                                             child: Image.file(
                                               width: 121.93 - 16,
                                               height: 123 - 12,
-                                              File(
-                                                  selectedImage!), // Show the selected image
-                                              fit: BoxFit
-                                                  .cover, // Ensure the image fits well inside the container
+                                              File(selectedImage!),
+                                              fit: BoxFit.cover,
                                             ),
                                           ),
                                         ),
@@ -758,49 +767,7 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
                       radius: 11,
                       color: ButtonColors.pink,
                       onPressed: () {
-                        final candy = Candy(
-                          id: const Uuid().v4(),
-                          name: _nameController.text,
-                          category: categoriesHint.firstWhere(
-                            (e) => e.name == _usageCategoryController.text,
-                            orElse: () => SweetCategory(
-                                id: const Uuid().v4(),
-                                name: _usageCategoryController.text),
-                          ),
-                          location: StorageLocation.values.firstWhere(
-                              (e) => e.name == selectedLocation,
-                              orElse: () => StorageLocation.values.first),
-                          quantity: quantityController.text.isNotEmpty
-                              ? int.parse(quantityController.text)
-                              : 0,
-                          expirationDate: selectedExpirationDate,
-                          isPermanent: recurringCandy,
-                          isPeriodic: recurringCandy,
-                          currentPeriodicIndex: 0,
-                          periodicityDays: selectedDates.isEmpty
-                              ? null
-                              : selectedDates.map((e) => e).toList(),
-                          periodicityCount:
-                              int.tryParse(selectedPeriodicityCount.text) ?? 0,
-                          type: SweetType.values.firstWhere(
-                              (e) => e.name == selectedCategory,
-                              orElse: () => SweetType.values.first),
-                          imageUrl: selectedImage,
-                          isTemplate: saveTemplate,
-                        );
-                        if (widget.candy != null) {
-                          candy.copyWith(id: widget.candy!.id);
-                        }
-                        if (addToCart) {
-                          context.read<CandyBloc>().add(AddToShoppingList(
-                              id: const Uuid().v4(), candy: candy));
-                        } else if (widget.candy != null) {
-                          context.read<CandyBloc>().add(UpdateCandy(candy));
-                        } else {
-                          context.read<CandyBloc>().add(SaveCandy(candy));
-                        }
-
-                        context.pop();
+                        _saveCandy(categoriesHint, context);
                       },
                       widget: Padding(
                         padding: const EdgeInsets.symmetric(

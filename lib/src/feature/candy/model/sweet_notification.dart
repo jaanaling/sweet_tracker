@@ -2,15 +2,24 @@
 
 import 'dart:convert';
 
+import 'package:sweet_planner/src/feature/candy/model/sweet_type.dart';
+
 class SweetNotification {
   final String id;
   final DateTime date;
   final String sweetName;
+  final SweetType type;
+  final String? image;
   final String message;
+  bool isRead ;
+
 
   SweetNotification({
     required this.id,
     required this.date,
+    required this.type,
+    required this.isRead,
+    this.image,
     required this.sweetName,
     required this.message,
   });
@@ -19,12 +28,18 @@ class SweetNotification {
     String? id,
     DateTime? date,
     String? sweetName,
+    SweetType? type,
+    String? image,
     String? message,
+    bool? isRead,
   }) {
     return SweetNotification(
+      type: type ?? this.type,
       id: id ?? this.id,
       date: date ?? this.date,
+      image: image ?? this.image,
       sweetName: sweetName ?? this.sweetName,
+      isRead: isRead ?? this.isRead,
       message: message ?? this.message,
     );
   }
@@ -33,6 +48,8 @@ class SweetNotification {
     return <String, dynamic>{
       'id': id,
       'date': date.millisecondsSinceEpoch,
+      'type': type.name,
+      'image': image,
       'sweetName': sweetName,
       'message': message,
     };
@@ -41,7 +58,10 @@ class SweetNotification {
   factory SweetNotification.fromMap(Map<String, dynamic> map) {
     return SweetNotification(
       id: map['id'] as String,
+      type: SweetType.values.firstWhere((e) => e.name == map['type']),
       date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
+      image: map['image'] != null ? map['image'] as String : null,
+      isRead: false,
       sweetName: map['sweetName'] as String,
       message: map['message'] as String,
     );
@@ -64,6 +84,8 @@ class SweetNotification {
     return other.id == id &&
         other.date == date &&
         other.sweetName == sweetName &&
+        other.type == type &&
+        other.image == image &&
         other.message == message;
   }
 
