@@ -6,12 +6,14 @@ class UsageHistoryRecord {
   final String id;
   final DateTime date;
   final String sweetName;
+  final String? image;
   final SweetCategory category;
   final int usedQuantity;
 
   UsageHistoryRecord({
     required this.id,
     required this.date,
+    this.image,
     required this.sweetName,
     required this.category,
     required this.usedQuantity,
@@ -21,6 +23,7 @@ class UsageHistoryRecord {
     String? id,
     DateTime? date,
     String? sweetName,
+    String? image,
     SweetCategory? category,
     int? usedQuantity,
   }) {
@@ -28,6 +31,7 @@ class UsageHistoryRecord {
       id: id ?? this.id,
       date: date ?? this.date,
       category: category ?? this.category,
+      image: image ?? this.image,
       sweetName: sweetName ?? this.sweetName,
       usedQuantity: usedQuantity ?? this.usedQuantity,
     );
@@ -37,6 +41,7 @@ class UsageHistoryRecord {
     return <String, dynamic>{
       'id': id,
       'date': date.millisecondsSinceEpoch,
+      'image': image,
       'sweetName': sweetName,
       'category': category.toMap(),
       'usedQuantity': usedQuantity,
@@ -46,6 +51,7 @@ class UsageHistoryRecord {
   factory UsageHistoryRecord.fromMap(Map<String, dynamic> map) {
     return UsageHistoryRecord(
       id: map['id'] as String,
+      image: map['image'] != null ? map['image'] as String : null,
       category: SweetCategory.fromMap(map['category'] as Map<String, dynamic>),
       date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
       sweetName: map['sweetName'] as String,
@@ -69,6 +75,8 @@ class UsageHistoryRecord {
 
     return other.id == id &&
         other.date == date &&
+        other.category == category &&
+        other.image == image &&
         other.sweetName == sweetName &&
         other.usedQuantity == usedQuantity;
   }
@@ -76,6 +84,8 @@ class UsageHistoryRecord {
   @override
   int get hashCode {
     return id.hashCode ^
+        category.hashCode ^
+        image.hashCode ^
         date.hashCode ^
         sweetName.hashCode ^
         usedQuantity.hashCode;

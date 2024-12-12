@@ -31,18 +31,7 @@ class HistoryScreen extends StatelessWidget {
               ],
             ),
           ),
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.check),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () {},
-              ),
-            ],
-          )
+         
         ],
       ),
     );

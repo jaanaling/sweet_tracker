@@ -363,7 +363,9 @@ class _AddSweetScreenState extends State<AddSweetScreen> {
       expirationDate: selectedExpirationDate,
       isPermanent: recurringCandy,
       isPeriodic: recurringCandy,
-      currentPeriodicIndex: 0,
+      currentPeriodicIndex: selectedDates.isEmpty
+          ? 0
+          : selectedDates.indexOf(DateTime.now().weekday),
       periodicityDays:
           selectedDates.isEmpty ? null : selectedDates.map((e) => e).toList(),
       periodicityCount: int.tryParse(selectedPeriodicityCount.text) ?? 0,

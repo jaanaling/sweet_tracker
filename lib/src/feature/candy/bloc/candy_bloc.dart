@@ -1,7 +1,10 @@
+import 'dart:convert'; // NEW CODE: для jsonEncode/jsonDecode
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:sweet_planner/src/feature/candy/model/sweet_type.dart';
 import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // NEW CODE: для SharedPreferences
 
 import '../../../core/dependency_injection.dart';
 import '../../../core/utils/log.dart';
@@ -28,6 +31,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
   List<UsageHistoryRecord> _historyList = [];
   Map<String, int> _pendingPeriodicUsage = {};
   List<SweetNotification> _notifications = [];
+  bool isFirst = false;
 
   CandyBloc() : super(CandyInitial()) {
     on<LoadCandy>(_onLoadCandy);
@@ -51,6 +55,33 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     on<DeleteNotification>(_onDeleteNotification);
   }
 
+  // NEW CODE: метод для загрузки _pendingPeriodicUsage из SharedPreferences
+  Future<void> _loadPendingPeriodicUsage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('pendingPeriodicUsage');
+    if (jsonString != null && jsonString.isNotEmpty) {
+      final Map<String, dynamic> decoded =
+          jsonDecode(jsonString) as Map<String, dynamic>;
+      _pendingPeriodicUsage =
+          decoded.map((key, value) => MapEntry(key, value as int));
+
+      logger.d(
+          'Pending periodic usage loaded from SharedPreferences: $_pendingPeriodicUsage');
+    } else {
+      _pendingPeriodicUsage = {};
+      logger.d(
+          'Pending periodic usage loaded from SharedPreferences: $_pendingPeriodicUsage');
+    }
+  }
+
+  // NEW CODE: метод для сохранения _pendingPeriodicUsage в SharedPreferences
+  Future<void> _savePendingPeriodicUsage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = jsonEncode(_pendingPeriodicUsage);
+    await prefs.setString('pendingPeriodicUsage', jsonString);
+  }
+  // END NEW CODE
+
   Future<void> _onLoadCandy(
     LoadCandy event,
     Emitter<CandyState> emit,
@@ -62,14 +93,15 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
 
       _shoppingList = await _shoppingRepository.load();
       _historyList = await _historyRepository.load();
-      
-      // Генерируем уведомления ОДИН раз при загрузке
- if (_notifications.isEmpty) {
-      _generateNotifications();}
 
-      // После этого вызова _notifications будет хранить все уведомления для сессии
-      // В дальнейшем не вызываем снова add(LoadCandy()) для обновления уведомлений,
-      // а просто emit(...) новые стейты при изменениях.
+      // NEW CODE: Загрузка _pendingPeriodicUsage из SharedPreferences
+      await _loadPendingPeriodicUsage();
+      // END NEW CODE
+
+      if (isFirst == false) {
+        _generateNotifications();
+        isFirst = true;
+      }
 
       emit(CandyLoaded(
         candies: _allCandies,
@@ -80,19 +112,19 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
       ));
 
       // Запускаем проверку периодичности один раз
-      add(CheckPeriodicity());
-
+      if (isFirst == false) {
+        add(CheckPeriodicity());
+        isFirst = true;
+      }
     } catch (e) {
       logger.e(e);
       emit(const CandyError('Failed to load candy'));
     }
   }
 
-  // Метод для однократной генерации уведомлений
   void _generateNotifications() {
     final now = DateTime.now();
 
-    // Уведомления о сроке годности
     for (var candy in _allCandies) {
       if (candy.expirationDate != null) {
         final diff = candy.expirationDate!.difference(now).inDays;
@@ -122,6 +154,20 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
             ),
           );
         }
+        if (_pendingPeriodicUsage.isNotEmpty) {
+          final notifMessage = 'You have periodic usage to confirm.';
+          if (!_notifications.any((n) => n.message == notifMessage)) {
+            _notifications.add(SweetNotification(
+              id: const Uuid().v4(),
+              image: '',
+              type: SweetType.caramel,
+              isRead: false,
+              date: now,
+              sweetName: '',
+              message: notifMessage,
+            ));
+          }
+        }
       }
     }
   }
@@ -135,6 +181,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
       if (index != -1) {
         _allCandies[index] = event.candy;
         final record = UsageHistoryRecord(
+          image: event.candy.imageUrl,
           id: const Uuid().v4(),
           date: DateTime.now(),
           category: event.candy.category,
@@ -147,7 +194,6 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
 
       await _candyRepository.update(event.candy);
 
-      // Вместо add(LoadCandy()) просто обновляем состояние
       emit(CandyLoaded(
         candies: _allCandies,
         shoppingList: _shoppingList,
@@ -155,7 +201,6 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
         historyList: _historyList,
         notifications: _notifications,
       ));
-
     } catch (e) {
       emit(const CandyError('Failed to update candy'));
     }
@@ -169,10 +214,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
       logger.d(event);
       await _candyRepository.save(event.candy);
 
-      // Добавляем новую конфету
       _allCandies.add(event.candy);
-
-      // Обновляем состояние напрямую
       add(LoadCandy());
     } catch (e) {
       logger.e(e);
@@ -225,7 +267,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
               _pendingPeriodicUsage[candy.id] = countToUse;
             }
           } else {
-            // Нет в наличии, генерируем уведомление, если еще не генерировали
+            // Нет в наличии, генерируем уведомление
             final notif = SweetNotification(
               id: const Uuid().v4(),
               image: candy.imageUrl,
@@ -235,7 +277,6 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
               sweetName: candy.name,
               message: 'Candy "${candy.name}" is out of stock!',
             );
-            // Добавляем только один раз
             if (!_notifications.any((n) => n.message == notif.message)) {
               _notifications.add(notif);
             }
@@ -244,30 +285,11 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
       }
     }
 
-    // Если есть конфеты на подтверждение списания, добавим уведомление (один раз)
-    if (_pendingPeriodicUsage.isNotEmpty) {
-      final notifMessage = 'You have periodic usage to confirm.';
-      if (!_notifications.any((n) => n.message == notifMessage)) {
-        _notifications.add(SweetNotification(
-          id: const Uuid().v4(),
-          image: '',
-          type: SweetType.caramel,
-          isRead: false,
-          date: now,
-          sweetName: '',
-          message: notifMessage,
-        ));
-      }
-    }
+    // NEW CODE: Сохраняем обновлённый _pendingPeriodicUsage
+    await _savePendingPeriodicUsage();
+    // END NEW CODE
 
-    // Обновляем состояние без перезагрузки
-    emit(CandyLoaded(
-      candies: _allCandies,
-      shoppingList: _shoppingList,
-      pendingPeriodicUsage: _pendingPeriodicUsage,
-      historyList: _historyList,
-      notifications: _notifications,
-    ));
+    add(LoadCandy());
   }
 
   Future<void> _onConfirmPeriodicUsage(
@@ -295,6 +317,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
         _pendingPeriodicUsage.remove(candyId);
 
         final record = UsageHistoryRecord(
+          image: updatedCandy.imageUrl,
           id: const Uuid().v4(),
           date: DateTime.now(),
           category: candy.category,
@@ -311,7 +334,6 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
           return;
         }
 
-        // Если конфета постоянная и количество 0, добавляем в корзину и уведомляем
         if (updatedCandy.isPermanent && updatedCandy.quantity == 0) {
           final shopItem = ShoppingItem(
             id: const Uuid().v4(),
@@ -337,17 +359,24 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
           }
         }
 
-        // Обновляем состояние напрямую, без LoadCandy()
-       add(LoadCandy());
+        // NEW CODE: Сохраняем обновлённый _pendingPeriodicUsage
+        await _savePendingPeriodicUsage();
+        // END NEW CODE
+
+        add(LoadCandy());
       }
     }
   }
 
-  void _onCancelPeriodicUsage(
+  Future<void> _onCancelPeriodicUsage(
     CancelPeriodicUsage event,
     Emitter<CandyState> emit,
-  ) {
+  ) async {
     _pendingPeriodicUsage.remove(event.candyId);
+    // NEW CODE: Сохраняем обновлённый _pendingPeriodicUsage после удаления
+    await _savePendingPeriodicUsage();
+    // END NEW CODE
+
     add(LoadCandy());
   }
 
@@ -369,8 +398,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
       return;
     }
 
-    // Обновляем состояние напрямую
-   add(LoadCandy());
+    add(LoadCandy());
   }
 
   Future<void> _onRemoveFromShoppingList(
@@ -386,7 +414,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
       return;
     }
 
-   add(LoadCandy());
+    add(LoadCandy());
   }
 
   Future<void> _onClearShoppingList(
@@ -402,7 +430,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
       return;
     }
 
-   add(LoadCandy());
+    add(LoadCandy());
   }
 
   Future<void> _onCheckoutShoppingList(
@@ -410,8 +438,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     Emitter<CandyState> emit,
   ) async {
     logger.d("Checkout shopping list: $_shoppingList");
-    // Ничего не меняем, просто эмитим текущее состояние
-   add(LoadCandy());
+    add(LoadCandy());
   }
 
   Future<void> _onBuyFromShoppingList(
@@ -440,17 +467,16 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
       await _candyRepository.save(item.candy);
     }
 
-   add(LoadCandy());
+    add(LoadCandy());
   }
 
   Future<void> _onDeleteNotification(
     DeleteNotification event,
     Emitter<CandyState> emit,
   ) async {
-    // Удаляем уведомление из текущего списка, не вызываем LoadCandy()
-    _notifications.removeWhere((n) => n.id == event.notification.id);
-
-    // Обновляем состояние напрямую
-   add(LoadCandy());
+    _notifications[
+            _notifications.indexWhere((n) => n.id == event.notification.id)]
+        .isRead = true;
+    add(LoadCandy());
   }
 }

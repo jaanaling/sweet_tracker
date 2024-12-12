@@ -123,6 +123,7 @@ class NotificationsScreen extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
         if (state is CandyLoaded) {
+          final notifications = state.notifications.where((test)=> test.isRead == false).toList();
           return SafeArea(
             child: SingleChildScrollView(
               padding: EdgeInsets.only(top: 16, bottom: 128),
@@ -158,15 +159,15 @@ class NotificationsScreen extends StatelessWidget {
                     ],
                   ),
                   Gap(16),
-                  state.notifications.isNotEmpty
+                  notifications.isNotEmpty
                       ? ListView.separated(
-                          itemCount: state.notifications.length,
+                          itemCount: notifications.length,
                           shrinkWrap: true,
                           separatorBuilder: (context, index) => Gap(15),
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
                             return _buildNotificationItem(
-                                context, state.notifications[index]);
+                                context, notifications[index]);
                           },
                         )
                       : Center(
