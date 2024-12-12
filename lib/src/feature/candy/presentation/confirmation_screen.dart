@@ -24,7 +24,6 @@ class ConfirmationScreen extends StatelessWidget {
             children: [
               SizedBox(
                 width: getWidth(1, context) - 36,
-                height: 82,
                 child: Padding(
                   padding: const EdgeInsets.all(5),
                   child: Row(
@@ -34,56 +33,99 @@ class ConfirmationScreen extends StatelessWidget {
                         radius: 6,
                         color: ButtonColors.white,
                         widget: SizedBox(
-                          width: 51,
-                          height: 43,
+                          width: 70,
+                          height: 62,
                           child: Padding(
-                              padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
+                              padding: const EdgeInsets.only(
+                                  left: 4, right: 4, bottom: 4),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(4),
                                 child: AppIcon(
-                                  width: 51,
-                                  height: 43,
+                                  width: 70,
+                                  height: 62,
                                   fit: BoxFit.cover,
                                   asset: candy.imageUrl ??
                                       IconProvider.buildImageByName(
-                                       candy.type.name,
+                                        candy.type.name,
                                       ),
                                 ),
                               )),
                         ),
                       ),
-                      Gap(3),
-                      Text(
-                        candy.name,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 15,
-                          fontFamily: 'Poppins',
-                          height: 0,
-                        ),
+                      Gap(6),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            candy.name,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 27,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w400,
+                              height: 0,
+                            ),
+                          ),
+                          Text(
+                            'count: ${candy.quantity}',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 19,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w400,
+                              height: 0,
+                            ),
+                          ),
+                          Text(
+                            candy.category.name,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 19,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w400,
+                              height: 0,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
               ),
               Positioned(
-                left: 61,
-                child: SizedBox(
-                  width: getWidth(1, context) - 142,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      "count: $count",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 22,
-                        fontFamily: 'Poppins',
-                      ),
-                    ),
-                  ),
-                ),
+                bottom: 0,
+                right: 0,
+                child: IconButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      context
+                          .read<CandyBloc>()
+                          .add(CancelPeriodicUsage(candy.id));
+                    },
+                    iconSize: 25,
+                    icon: Icon(
+                      CupertinoIcons.clear_circled_solid,
+                      color: Color(0xFF9B043B),
+                    )),
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: IconButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      context
+                          .read<CandyBloc>()
+                          .add(ConfirmPeriodicUsage(candy.id));
+                    },
+                    iconSize: 25,
+                    icon: Icon(
+                      CupertinoIcons.checkmark_alt_circle_fill,
+                      color: Color(0xFF00E178),
+                    )),
               ),
             ],
           )),
@@ -108,15 +150,15 @@ class ConfirmationScreen extends StatelessWidget {
                 .add(state.candies.firstWhere((candy) => candy.id == element));
           }
 
-          return SafeArea(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(top: 16, bottom: 128),
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(top: 16, bottom: 128),
+            child: SafeArea(
               child: Column(
                 children: [
                   Gap(16),
                   state.pendingPeriodicUsage.isNotEmpty
                       ? ListView.separated(
-                          itemCount:candyList.length,
+                          itemCount: candyList.length,
                           shrinkWrap: true,
                           separatorBuilder: (context, index) => Gap(15),
                           physics: NeverScrollableScrollPhysics(),
