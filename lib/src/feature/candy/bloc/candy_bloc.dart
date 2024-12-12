@@ -194,13 +194,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
 
       await _candyRepository.update(event.candy);
 
-      emit(CandyLoaded(
-        candies: _allCandies,
-        shoppingList: _shoppingList,
-        pendingPeriodicUsage: _pendingPeriodicUsage,
-        historyList: _historyList,
-        notifications: _notifications,
-      ));
+      add(LoadCandy());
     } catch (e) {
       emit(const CandyError('Failed to update candy'));
     }
@@ -367,13 +361,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
 
         await _savePendingPeriodicUsage();
 
-        emit(CandyLoaded(
-          candies: _allCandies,
-          shoppingList: _shoppingList,
-          pendingPeriodicUsage: _pendingPeriodicUsage,
-          historyList: _historyList,
-          notifications: _notifications,
-        ));
+        add(LoadCandy());
       }
     }
   }

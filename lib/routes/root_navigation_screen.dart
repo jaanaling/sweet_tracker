@@ -27,9 +27,9 @@ class _RootNavigationScreenState extends State<RootNavigationScreen> {
         children: [
           Positioned.fill(
             child: DecoratedBox(
-              decoration: BoxDecoration(color: Color(0xFFFFB6FD)),
+              decoration: BoxDecoration(color: Color(0xFFFFB6FD)
             ),
-          ),
+          ),),
           widget.navigationShell,
           Align(
             alignment: Alignment.bottomCenter,

@@ -516,13 +516,64 @@ class _HomeScreenState extends State<HomeScreen> {
                                   "${RouteValue.home.path}/${RouteValue.notification.path}",
                                 );
                               },
-                              icon: Ink.image(
-                                fit: BoxFit.fitWidth,
-                                width: 32,
-                                height: 39,
-                                image: AssetImage(
-                                  IconProvider.notifications.buildImageUrl(),
-                                ),
+                              icon: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Ink.image(
+                                    fit: BoxFit.fitWidth,
+                                    width: 32,
+                                    height: 39,
+                                    image: AssetImage(
+                                      IconProvider.notifications.buildImageUrl(),
+                                    ),
+                                  ),
+                                  if(state.notifications.where((item)=>item.isRead==false).toList().isNotEmpty)
+                                  Positioned(
+                                    right: -8,
+                                    bottom: -8,
+                                    child: Container(
+                                      width: 18,
+                                      height: 18,
+                                      decoration: ShapeDecoration(
+                                        color: Color(0xFF00DB19),
+                                        shape: OvalBorder(
+                                          side: BorderSide(
+                                            width: 0.50,
+                                            strokeAlign: BorderSide.strokeAlignOutside,
+                                            color: Color(0xFF007307),
+                                          ),
+                                        ),
+                                        shadows: [
+                                          BoxShadow(
+                                            color: Color(0x3F000000),
+                                            blurRadius: 2.50,
+                                            offset: Offset(0, 1),
+                                            spreadRadius: 0,
+                                          )
+                                        ],
+                                      ),
+                                      child:
+                                      Center(
+                                        child: Text(
+                                          state.notifications.where((item)=>item.isRead==false).toList().length.toString(),
+                                          style: TextStyle(
+                                            fontSize: 17,
+                                            fontFamily: 'Boleh',
+                                            fontWeight: FontWeight.w400,
+                                            height: 0,
+                                            shadows: [
+                                              Shadow(
+                                                offset: Offset(2, 2),
+                                                blurRadius: 4,
+                                                color: Colors.black.withOpacity(0.25),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -760,42 +811,45 @@ class _HomeScreenState extends State<HomeScreen> {
       isSelected = globalLocationFilter.contains(locationId);
     }
 
-    return AppButton(
-      color: isSelected ? ButtonColors.purple : ButtonColors.grey,
-      onPressed: () {
-        setState(() {
-          if (_groupByCategory && categoryId != null) {
-            final currentList = storageFilter[categoryId] ?? [];
-            if (currentList.contains(locationId)) {
-              currentList.remove(locationId);
+    return Padding(
+      padding: const EdgeInsets.only(right: 4),
+      child: AppButton(
+        color: isSelected ? ButtonColors.purple : ButtonColors.grey,
+        onPressed: () {
+          setState(() {
+            if (_groupByCategory && categoryId != null) {
+              final currentList = storageFilter[categoryId] ?? [];
+              if (currentList.contains(locationId)) {
+                currentList.remove(locationId);
+              } else {
+                currentList.add(locationId);
+              }
+              if (currentList.isEmpty) {
+                storageFilter.remove(categoryId);
+              } else {
+                storageFilter[categoryId] = currentList;
+              }
             } else {
-              currentList.add(locationId);
+              // Глобальный фильтр для мест
+              if (globalLocationFilter.contains(locationId)) {
+                globalLocationFilter.remove(locationId);
+              } else {
+                globalLocationFilter.add(locationId);
+              }
             }
-            if (currentList.isEmpty) {
-              storageFilter.remove(categoryId);
-            } else {
-              storageFilter[categoryId] = currentList;
-            }
-          } else {
-            // Глобальный фильтр для мест
-            if (globalLocationFilter.contains(locationId)) {
-              globalLocationFilter.remove(locationId);
-            } else {
-              globalLocationFilter.add(locationId);
-            }
-          }
-        });
-      },
-      widget: Padding(
-        padding: const EdgeInsets.only(left: 24, right: 24, bottom: 6, top: 6),
-        child: Text(
-          storageName,
-          style: TextStyle(
-            color: isSelected ? Colors.white : const Color(0xFF790AA3),
-            fontSize: 16,
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w400,
-            height: 0,
+          });
+        },
+        widget: Padding(
+          padding: const EdgeInsets.only(left: 24, right: 24, bottom: 6, top: 6),
+          child: Text(
+            storageName,
+            style: TextStyle(
+              color: isSelected ? Colors.white : const Color(0xFF790AA3),
+              fontSize: 16,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w400,
+              height: 0,
+            ),
           ),
         ),
       ),
@@ -1115,8 +1169,8 @@ Future<void> showCandyDialog(
           CupertinoDialogAction(
             child: const Text('Consume'),
             onPressed: () {
-              showConsumeCandyDialog(candy: candy, context: context);
               context.pop();
+              showConsumeCandyDialog(candy: candy, context: context);
             },
           ),
           CupertinoDialogAction(

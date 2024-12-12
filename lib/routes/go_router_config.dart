@@ -54,7 +54,18 @@ GoRouter buildGoRouter = GoRouter(
                     GoRoute(
                         path: RouteValue.notification.path,
                         builder: (BuildContext context, GoRouterState state) {
-                          return const NotificationsScreen();
+                          return DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment(0.00, -1.00),
+                                  end: Alignment(0, 1),
+                                  colors: [
+                                    Color(0xFFFFB7FE),
+                                    Color(0xFFC046F3)
+                                  ],
+                                ),
+                              ),
+                              child: const NotificationsScreen());
                         }),
                   ]),
             ]),
