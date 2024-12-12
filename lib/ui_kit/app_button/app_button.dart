@@ -8,6 +8,7 @@ class AppButton extends StatelessWidget {
   final double radius;
   final double? width;
   final bool isRound;
+  final GlobalKey? globalKey;
 
   const AppButton({
     super.key,
@@ -16,7 +17,7 @@ class AppButton extends StatelessWidget {
     this.onPressed,
     this.radius = 32,
     this.width,
-    this.isRound = false,
+    this.isRound = false, this.globalKey,
   });
 
   @override
@@ -24,6 +25,7 @@ class AppButton extends StatelessWidget {
     final ButtonStyleConfig styleConfig = _getButtonStyleConfig(color);
 
     return Material(
+      key: globalKey,
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(radius),
       elevation: 5,

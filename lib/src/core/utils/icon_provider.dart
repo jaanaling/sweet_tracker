@@ -20,6 +20,7 @@ enum IconProvider {
   delete(imageName: 'delete.png'),
   edit(imageName: 'edit.png'),
   addPhoto(imageName: 'add_photo.png'),
+  back(imageName: 'back.png'),
 
   unknown(imageName: '');
 

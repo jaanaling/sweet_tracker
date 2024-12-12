@@ -301,7 +301,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     left: 5,
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      onPressed: () {context.push("${RouteValue.home.path}/${RouteValue.add.path}", extra: candy);},
+                      onPressed: () {
+                        context.push(
+                            "${RouteValue.home.path}/${RouteValue.add.path}",
+                            extra: candy);
+                      },
                       icon: AppIcon(
                         asset: IconProvider.edit.buildImageUrl(),
                         width: 21,
@@ -486,8 +490,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             IconButton(
                               padding: EdgeInsets.zero,
                               onPressed: _showSettingsPopup,
-                              icon: AppIcon(
-                                asset: IconProvider.settings.buildImageUrl(),
+                              icon: Ink.image(
+                                image: AssetImage(
+                                  IconProvider.settings.buildImageUrl(),
+                                ),
                                 width: 39,
                                 fit: BoxFit.fitWidth,
                                 height: 42,
@@ -500,17 +506,38 @@ class _HomeScreenState extends State<HomeScreen> {
                                   "${RouteValue.home.path}/${RouteValue.notification.path}",
                                 );
                               },
-                              icon: AppIcon(
-                                asset:
-                                    IconProvider.notifications.buildImageUrl(),
+                              icon: Ink.image(
                                 fit: BoxFit.fitWidth,
                                 width: 32,
                                 height: 39,
+                                image: AssetImage(
+                                  IconProvider.notifications.buildImageUrl(),
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
+                      if(state.candies.isEmpty)
+                        Center(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: getHeight(0.3, context)),
+                            child: Text('No candies here!',
+                                style: TextStyle(
+                                  fontSize: 27,
+                                  fontFamily: 'Boleh',
+                                  fontWeight: FontWeight.w400,
+                                  height: 0,
+                                  shadows: [
+                                    Shadow(
+                                      offset: Offset(2, 2),
+                                      blurRadius: 4,
+                                      color: Colors.black.withOpacity(0.25),
+                                    ),
+                                  ],
+                                ),),
+                          ),
+                        ),
                       if (_groupByCategory && _groupByLocation)
                         // Отображаем категории и их места
                         ListView.separated(
@@ -957,12 +984,12 @@ Future<String?> showTemplateSelectionDialog({
                 )
               else
                 ElevatedButton(
-                  onPressed: () { context.pop();
+                  onPressed: () {
+                    context.pop();
                     showAddFromTemplateDialog(
                         context: context,
                         template: templates.firstWhere(
                             (element) => element.id == selectedTemplateId));
-                   
                   },
                   child: const Text('OK'),
                 ),
