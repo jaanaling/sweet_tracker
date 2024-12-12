@@ -1,9 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:sweet_planner/src/feature/candy/model/candy.dart';
 
 import '../../../../ui_kit/app_button/app_button.dart';
+import '../../../core/utils/app_icon.dart';
+import '../../../core/utils/icon_provider.dart';
 import '../../../core/utils/size_utils.dart';
 import '../bloc/candy_bloc.dart';
 
@@ -28,12 +31,27 @@ class ConfirmationScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AppButton(
-                          radius: 6,
-                          color: ButtonColors.white,
-                          widget: SizedBox(
-                            width: 51,
-                            height: 43,
-                          )),
+                        radius: 6,
+                        color: ButtonColors.white,
+                        widget: SizedBox(
+                          width: 51,
+                          height: 43,
+                          child: Padding(
+                              padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: AppIcon(
+                                  width: 51,
+                                  height: 43,
+                                  fit: BoxFit.cover,
+                                  asset: candy.imageUrl ??
+                                      IconProvider.buildImageByName(
+                                       candy.type.name,
+                                      ),
+                                ),
+                              )),
+                        ),
+                      ),
                       Gap(3),
                       Text(
                         candy.name,

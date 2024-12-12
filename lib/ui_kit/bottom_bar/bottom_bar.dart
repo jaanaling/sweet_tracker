@@ -40,25 +40,25 @@ class _BottomBarState extends State<BottomBar> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            unselectedItem(iconPathsUnselected[0], true, false, () {
+            unselectedItem(44.5, 44.5,iconPathsUnselected[0], true, false, () {
               setState(() {
                 _selectedIndex = 0;
               });
               widget.onTap(0);
             }),
-            unselectedItem(iconPathsUnselected[1], false, false, () {
+            unselectedItem(44.5, 44.5,iconPathsUnselected[1], false, false, () {
               setState(() {
                 _selectedIndex = 1;
               });
               widget.onTap(1);
             }),
-            unselectedItem(iconPathsUnselected[2], false, false, () {
+            unselectedItem(46.5, 44.5,iconPathsUnselected[2], false, false, () {
               setState(() {
                 _selectedIndex = 2;
               });
               widget.onTap(2);
             }),
-            unselectedItem(iconPathsUnselected[3], false, true, () {
+            unselectedItem(45.5, 40.5,iconPathsUnselected[3], false, true, () {
               setState(() {
                 _selectedIndex = 3;
               });
@@ -82,7 +82,7 @@ class _BottomBarState extends State<BottomBar> {
               );
             },
             child: _selectedIndex == 0
-                ? selectedItem(iconPathsSelected[0], 'HOME', null, true, false, () {
+                ? selectedItem(44.5, 44.5, iconPathsSelected[0], 'HOME', null, true, false, () {
               setState(() {
                 _selectedIndex = 0;
               });
@@ -107,7 +107,7 @@ class _BottomBarState extends State<BottomBar> {
               );
             },
             child: _selectedIndex == 1
-                ? selectedItem(iconPathsSelected[1], 'SHOPPING LIST', null, false, false, () {
+                ? selectedItem(44.5, 44.5, iconPathsSelected[1], 'SHOPPING LIST', null, false, false, () {
               setState(() {
                 _selectedIndex = 1;
               });
@@ -132,7 +132,7 @@ class _BottomBarState extends State<BottomBar> {
               );
             },
             child: _selectedIndex == 2
-                ? selectedItem(iconPathsSelected[2], 'HISTORY', null, false, false, () {
+                ? selectedItem(46.5, 44.5, iconPathsSelected[2], 'HISTORY', null, false, false, () {
               setState(() {
                 _selectedIndex = 2;
               });
@@ -157,7 +157,7 @@ class _BottomBarState extends State<BottomBar> {
               );
             },
             child: _selectedIndex == 3
-                ? selectedItem(iconPathsSelected[3], 'Usage', 'confirmation', false, true, () {
+                ? selectedItem(45.5, 40.5,iconPathsSelected[3], 'Usage', 'confirmation', false, true, () {
               setState(() {
                 _selectedIndex = 3;
               });
@@ -170,7 +170,7 @@ class _BottomBarState extends State<BottomBar> {
     );
   }
 
-  Widget selectedItem(String iconPath, String label, String? secondLabel,
+  Widget selectedItem(double width, double height, String iconPath, String label, String? secondLabel,
       bool isLeft, bool isRight, void Function() onTap, double? fontSize) {
     return Material(
       color: Colors.transparent,
@@ -215,7 +215,7 @@ class _BottomBarState extends State<BottomBar> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  AppIcon(asset: iconPath),
+                  AppIcon(asset: iconPath, width: width, height: height,),
                   Gap(8),
                   if (secondLabel == null)
                     Text(
@@ -264,7 +264,7 @@ class _BottomBarState extends State<BottomBar> {
     );
   }
 
-  Widget unselectedItem(
+  Widget unselectedItem(double width, double height,
       String iconPath, bool isLeft, bool isRight, void Function() onTap) {
     return Padding(
       padding: EdgeInsets.only(
@@ -326,7 +326,7 @@ class _BottomBarState extends State<BottomBar> {
                       ),
                     ),
                     child: Center(
-                      child: AppIcon(asset: iconPath),
+                      child: AppIcon(asset: iconPath, width: width, height: height,),
                     ),
                   ),
                 ],
