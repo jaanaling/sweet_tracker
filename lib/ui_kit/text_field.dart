@@ -127,7 +127,7 @@ class AppTextField extends StatelessWidget {
 
 class SearchTextField extends StatelessWidget {
   final TextEditingController controller;
-  final VoidCallback onChanged;
+  final ValueChanged<String>? onChanged;
   const SearchTextField({
     super.key,
     required this.controller,
@@ -158,9 +158,7 @@ class SearchTextField extends StatelessWidget {
             color: Color(0x8E350047),
           ),
         ),
-        onChanged: (value) {
-          onChanged();
-        },
+        onChanged: onChanged,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             begin: Alignment(0.00, -1.00),

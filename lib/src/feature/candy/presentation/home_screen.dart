@@ -490,8 +490,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             SearchTextField(
                               controller: _searchController,
-                              onChanged: () {
-                                setState(() {});
+                              onChanged: (val) {
+                                setState(() {
+                                  _searchController.text = val;
+                                });
                               },
                             ),
                             const Spacer(),
@@ -1106,7 +1108,7 @@ Future<void> showCandyDialog(
             Text('Location: ${candy.location.name}'),
             Text('Quantity: ${candy.quantity}'),
             Text(
-                'Expiration Date: ${candy.expirationDate != null ? formatDate(candy.expirationDate!)  : 'N/A'}'),
+                'Expiration Date: ${candy.expirationDate != null ? formatDate(candy.expirationDate!) : 'N/A'}'),
           ],
         ),
         actions: <Widget>[

@@ -1,10 +1,10 @@
-import 'dart:convert'; // NEW CODE: для jsonEncode/jsonDecode
+import 'dart:convert'; // для jsonEncode/jsonDecode
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:sweet_planner/src/feature/candy/model/sweet_type.dart';
 import 'package:uuid/uuid.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // NEW CODE: для SharedPreferences
+import 'package:shared_preferences/shared_preferences.dart'; // для SharedPreferences
 
 import '../../../core/dependency_injection.dart';
 import '../../../core/utils/log.dart';
@@ -55,7 +55,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     on<DeleteNotification>(_onDeleteNotification);
   }
 
-  // NEW CODE: метод для загрузки _pendingPeriodicUsage из SharedPreferences
+  // Загрузка _pendingPeriodicUsage из SharedPreferences
   Future<void> _loadPendingPeriodicUsage() async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString('pendingPeriodicUsage');
@@ -74,13 +74,14 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     }
   }
 
-  // NEW CODE: метод для сохранения _pendingPeriodicUsage в SharedPreferences
+  // Сохранение _pendingPeriodicUsage в SharedPreferences
   Future<void> _savePendingPeriodicUsage() async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = jsonEncode(_pendingPeriodicUsage);
+    logger.d(
+        'Pending periodic usage saved to SharedPreferences: $jsonString');
     await prefs.setString('pendingPeriodicUsage', jsonString);
   }
-  // END NEW CODE
 
   Future<void> _onLoadCandy(
     LoadCandy event,
@@ -94,13 +95,12 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
       _shoppingList = await _shoppingRepository.load();
       _historyList = await _historyRepository.load();
 
-      // NEW CODE: Загрузка _pendingPeriodicUsage из SharedPreferences
+      // Загрузка _pendingPeriodicUsage из SharedPreferences
       await _loadPendingPeriodicUsage();
-      // END NEW CODE
 
       if (isFirst == false) {
         _generateNotifications();
-        isFirst = true;
+        
       }
 
       emit(CandyLoaded(
@@ -241,9 +241,11 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     CheckPeriodicity event,
     Emitter<CandyState> emit,
   ) async {
-    _pendingPeriodicUsage.clear();
+    // Удаляем очистку _pendingPeriodicUsage, чтобы не терять старые данные
     final now = DateTime.now();
     final currentWeekday = now.weekday; // 1 = Monday, 7 = Sunday
+
+    bool updated = false;
 
     for (var candy in _allCandies) {
       if (candy.isPeriodic &&
@@ -258,16 +260,19 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
                 ? candy.periodicityCount!
                 : candy.quantity;
 
-            candy.currentPeriodicIndex =
-                (candy.currentPeriodicIndex! + 1) % days.length;
-            await _candyRepository.update(candy.copyWith(
-                currentPeriodicIndex: candy.currentPeriodicIndex));
+            final newIndex = (candy.currentPeriodicIndex! + 1) % days.length;
+
+            await _candyRepository
+                .update(candy.copyWith(currentPeriodicIndex: newIndex));
 
             if (countToUse > 0) {
-              _pendingPeriodicUsage[candy.id] = countToUse;
+              // Добавляем или суммируем новое значение в уже существующее
+              _pendingPeriodicUsage[candy.id] =
+                  (_pendingPeriodicUsage[candy.id] ?? 0) + countToUse;
+              updated = true;
             }
           } else {
-            // Нет в наличии, генерируем уведомление
+            // Нет в наличии, генерируем уведомление один раз
             final notif = SweetNotification(
               id: const Uuid().v4(),
               image: candy.imageUrl,
@@ -285,10 +290,11 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
       }
     }
 
-    // NEW CODE: Сохраняем обновлённый _pendingPeriodicUsage
-    await _savePendingPeriodicUsage();
-    // END NEW CODE
+    if (updated) {
+      await _savePendingPeriodicUsage();
+    }
 
+    // Обновляем состояние напрямую без вызова LoadCandy()
     add(LoadCandy());
   }
 
@@ -359,11 +365,15 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
           }
         }
 
-        // NEW CODE: Сохраняем обновлённый _pendingPeriodicUsage
         await _savePendingPeriodicUsage();
-        // END NEW CODE
 
-        add(LoadCandy());
+        emit(CandyLoaded(
+          candies: _allCandies,
+          shoppingList: _shoppingList,
+          pendingPeriodicUsage: _pendingPeriodicUsage,
+          historyList: _historyList,
+          notifications: _notifications,
+        ));
       }
     }
   }
@@ -373,9 +383,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     Emitter<CandyState> emit,
   ) async {
     _pendingPeriodicUsage.remove(event.candyId);
-    // NEW CODE: Сохраняем обновлённый _pendingPeriodicUsage после удаления
     await _savePendingPeriodicUsage();
-    // END NEW CODE
 
     add(LoadCandy());
   }
@@ -477,6 +485,7 @@ class CandyBloc extends Bloc<CandyEvent, CandyState> {
     _notifications[
             _notifications.indexWhere((n) => n.id == event.notification.id)]
         .isRead = true;
+
     add(LoadCandy());
   }
 }
