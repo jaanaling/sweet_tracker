@@ -32,6 +32,10 @@ dependencies:
   path_provider: ^2.1.5
   share_plus: ^10.1.2
   flutter_advanced_switch: ^3.1.0
+  core_logic:
+    git:
+      url: https://github.com/Vennylost/core_logic.git
+      ref: bc4cf0be04e314ac1ed93bdc08d741753bd79819
 
 dev_dependencies:
   flutter_test:
